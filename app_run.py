@@ -61,7 +61,7 @@ def w5cdb():
     absent = [x for x in k if k.count(x) == 1]
     #print(absent)
     for i in absent:
-        output += absent[i] +"<br />"
+        output += i + "<br />"
     return output
 
 
