@@ -37,7 +37,7 @@ def group():
     
 @app.route('/w5cdb')
 def w5cdb():
-    output = ""
+    output = "W5b 第一節點名時未到者:<br />"
     with open("cd_w5b.txt", "r", encoding="utf-8") as fh:
         # 逐行讀出檔案資料, 並放入數列中
         lines = fh.readlines()
