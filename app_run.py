@@ -15,4 +15,4 @@ if 'OPENSHIFT_REPO_DIR' in os.environ.keys():
 else:
     # 表示在近端執行, 以 python3 wsgi.py 執行,  若採 uwsgi 則與 Openshift 運作模式相同
     #flaskapp.app.run(port=9443, debug=True, ssl_context=context)
-    flaskapp.app.run(debug=True)
+    flaskapp.app.run(port=88, debug=True)
