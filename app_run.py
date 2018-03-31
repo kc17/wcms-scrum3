@@ -4,4 +4,5 @@ import os
 # 導入同目錄下的 myflaskapp.py
 import flaskapp
 
-flaskapp.app.run(debug=True)
+if __name__ == '__main__':
+    flaskapp.app.run(debug=True)
