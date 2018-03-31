@@ -66,13 +66,6 @@ app.config['download_dir'] = download_dir
 # set the secret key.  keep this really secret:
 app.secret_key = 'A0Zr9@8j/3yX R~XHH!jmN]LWX/,?R@T'
 
-
-
-
-
-
-
-
 # 子目錄中註冊藍圖位置
 #app.register_blueprint(users.g1.user1.g1app)
 @app.route('/')
