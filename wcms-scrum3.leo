@@ -72,12 +72,14 @@
 <v t="leo.20180408153206.32"><vh>error_log</vh></v>
 <v t="leo.20180408153449.1"><vh>w1cda</vh></v>
 <v t="leo.20180408153345.1"><vh>w5cdb</vh></v>
+<v t="leo.20180408155117.1"><vh>lua</vh></v>
 </v>
 <v t="leo.20180331151703.1"><vh>@edit app_run-orig.py</vh></v>
 <v t="leo.20180328201626.1"><vh>@edit cd_w5b.txt</vh></v>
 <v t="leo.20180328201641.1"><vh>@edit cd_w5b.py</vh></v>
 <v t="leo.20180331150446.1"><vh>@edit wsgi.py</vh></v>
 <v t="leo.20180331151732.1"><vh>@edit flaskapp.py</vh></v>
+<v t="leo.20180408160628.1"><vh>@edit lua.html</vh></v>
 </vnodes>
 <tnodes>
 <t tx="leo.20180328195852.1"></t>
@@ -1777,6 +1779,14 @@ def w1cda():
                     output += groups[i] + " "
                 else:
                    output += groups[i] + " "
+    return output</t>
+<t tx="leo.20180408155117.1">@app.route('/lua')
+def lua():
+    output = ""
+    with open("lua.html", "r", encoding="utf-8") as fh:
+        lines = fh.readlines()
+        for i in range(len(lines)):
+            output+=lines[i]
     return output</t>
 </tnodes>
 </leo_file>

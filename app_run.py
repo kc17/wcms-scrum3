@@ -1553,6 +1553,15 @@ def w5cdb():
         output += i + "<br />"
     return output
 
+@app.route('/lua')
+def lua():
+    output = ""
+    with open("lua.html", "r", encoding="utf-8") as fh:
+        lines = fh.readlines()
+        for i in range(len(lines)):
+            output+=lines[i]
+    return output
+
 if __name__ == "__main__":
     app.run(debug=True)
 
