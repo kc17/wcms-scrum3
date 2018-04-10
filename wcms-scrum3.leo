@@ -869,7 +869,9 @@ def get_page(heading, edit):
 &lt;script type="text/javascript" src="/static/syntaxhighlighter/shBrushLua.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="/static/syntaxhighlighter/shBrushCpp.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="/static/syntaxhighlighter/shBrushCss.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="/static/syntaxhighlighter/shBrushCSharp.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="/static/syntaxhighlighter/shBrushCss.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="/static/syntaxhighlighter/shBrushPowerShell.js"&gt;&lt;/script&gt;
+
 &lt;link type="text/css" rel="stylesheet" href="/static/syntaxhighlighter/css/shCoreDefault.css"/&gt;
 &lt;script type="text/javascript"&gt;SyntaxHighlighter.all();&lt;/script&gt;
 '''
