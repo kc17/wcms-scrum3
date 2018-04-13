@@ -13,7 +13,7 @@
 <v t="leo.20180328195852.2"><vh>@data qt-gui-plugin-style-sheet</vh></v>
 <v t="leo.20180328195852.3"><vh>@string initial_split_orientation = horizontal</vh></v>
 </v>
-<v t="leo.20180408153151.1" a="E"><vh>@clean app_run.py</vh>
+<v t="leo.20180408153151.1"><vh>@clean app_run.py</vh>
 <v t="leo.20180408153205.1"><vh>Declarations</vh></v>
 <v t="leo.20180408153205.2"><vh>index</vh></v>
 <v t="leo.20180408153205.3"><vh>download</vh></v>
