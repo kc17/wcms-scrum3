@@ -65,7 +65,471 @@
 <li>利用 <a href="http://mde.tw/vecp2018/lua/SchoolProject/">http://mde.tw/vecp2018/lua/SchoolProject/</a> 繪製虎尾科技大學校徽</li>
 <li>利用 <a href="http://mde.tw/vecp2018/lua/SchoolProject/">http://mde.tw/vecp2018/lua/SchoolProject/</a> 繪製美國國旗</li>
 <li>請將上述內容寫在各組的 vecp2018 倉儲中</li>
-</ol><h1>網際內容管理</h1><p>這是位於 <a href="https://www.heroku.com">heroku</a> 的 <a href="https://github.com/chiamingyen/cmsimfly">CMSimfly</a> 網站, 由於能在網頁中維護的 <a href="https://www.heroku.com">heroku</a> 網站, 必須與其他雲端儲存系統結合, 而本站是在近端維護後, 提交推送到 <a href="https://www.heroku.com">heroku</a>, 因此目前只能展示&nbsp;<a href="https://git.heroku.com/wcms-scrum3.git">https://git.heroku.com/wcms-scrum3.git</a>&nbsp;倉儲中的網際內容資料, 透過瀏覽器修改的內容, 將會不定期遭 <a href="https://www.heroku.com">heroku</a> 刪除.</p><p>儘管如此, 在近端維護後提交推送到遠端的資料維護模式, 仍可用來呈現網際內容管理相關程式的執行結果.</p><p>例如:</p><p><a href="/w1cda">w1cda 分組程式</a>&nbsp;</p><p><a href="/w7cda">w7cda 列出缺席名單</a></p><p><a href="/w5cdb">w5cdb 列出缺席名單</a></p><p><a href="/w7cdb">w7cdb 列出缺席名單</a></p><p><a href="/vecpw7">vecpw7 列出缺席名單</a></p><h2>使用流程</h2>
+</ol>
+<h3>Lua 程式範例</h3>
+<p>以下為&nbsp;<a href="https://github.com/mdecourse/vecp2018/blob/gh-pages/v-rep/YouBot_interactive.ttt">https://github.com/mdecourse/vecp2018/blob/gh-pages/v-rep/YouBot_interactive.ttt</a>&nbsp;場景中的控制程式</p>
+<pre class="brush:lua;auto-links:false;toolbar:false" contenteditable="false">-- 角度轉徑度函式
+function deg2rad(deg)
+   return deg*math.pi/180
+end
+
+-- 徑度轉角度函式
+function rad2deg(rad)
+   return rad*180/math.pi
+end
+
+-- null 函式
+function nullFunc(arg)
+   return arg
+end
+
+-- 切換徑度函式
+function toggleRadians(ui,id,newVal)
+   if (newVal==2) then
+	  angleTo = deg2rad
+	  angleFrom = rad2deg
+   else
+	  angleTo = nullFunc
+	  angleFrom = nullFunc
+   end	  
+end
+
+-- 設定各軸角度
+applyJoints=function(jointHandles,joints)
+    for i=1,#jointHandles,1 do
+        simSetJointPosition(jointHandles[i],joints[i])
+    end
+end
+
+-- 取得各軸角度
+getJoints=function(jointHandles,angles)
+   angles={0,0,0,0,0,0,0,0}
+   for i=1,#jointHandles,1 do
+	  angles[i]=simGetJointPosition(jointHandles[i])
+   end
+   return angles
+end
+
+-- 更新各軸角度字串
+updateActualText=function(jointHandles, angles)
+   local ang_str="( "
+   for i=1,#jointHandles,1 do
+	  -- simExtCustomUI_setLabelText(ui,5000+i,string.format('Actual = %+6.3f', angles[i]))
+	  ang_str=ang_str..string.format("%6.3f, ", angles[i])
+   end
+   ang_str=string.sub(ang_str,1,-3)
+   ang_str=ang_str.."  )"
+   simExtCustomUI_setLabelText(ui,1237,ang_str)
+end
+
+function changeAllSliders(ui,q)
+   for i=1,#jh,1 do
+	  simExtCustomUI_setSliderValue(ui,4000+i,q[i]*1000)
+	  simExtCustomUI_setLabelText(ui,3000+i,string.format('Reference = %+6.3f',q[i]))
+   end
+end
+
+function sliderChange(ui,id,newVal)
+   for i=1,#jh,1 do
+	  if (id==4000+i) then
+		 simExtCustomUI_setLabelText(ui,3000+i,string.format('Reference = %+6.3f',newVal/1000))
+		 ref_ang[i]=newVal/1000
+		 break
+	  end
+   end
+end
+
+function mysplit(inputstr, sep)
+   if sep == nil then
+	  sep = "%s"
+   end
+   local t={}
+   for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+	  table.insert(t,str)
+   end
+   return t
+end
+
+function fulljointEntry(ui,id,newVal)
+   if (newVal==enteredString) then
+	  enteredString=newVal
+	  out=string.format("Already processed and sent this string... try editing")
+	  simExtCustomUI_setLabelText(ui, 1236, out)
+	  return
+   end
+   enteredString=newVal
+   local q=mysplit(newVal,",")
+   local out=""
+   if (#q==0) then
+	  out=string.format("No conversions completed &lt;br&gt; Are you separating with commas?")
+	  simExtCustomUI_setLabelText(ui, 1236, out)
+	  return
+   elseif (#q&lt;#jh) then
+	  out=string.format("Not enough configuration variables specified")
+	  simExtCustomUI_setLabelText(ui, 1236, out)
+	  return
+   elseif (#q&gt;#jh) then
+	  out=string.format("Too many configuration variables specified")
+	  simExtCustomUI_setLabelText(ui, 1236, out)
+	  return
+   end
+   for i=1,#q,1 do
+	  qtest=tonumber(q[i])
+	  if (qtest==nil) then
+		 out=string.format("Could not convert entry number %d:&lt;br&gt; Entered='",i,q[i])..q[i].."'"
+		 simExtCustomUI_setLabelText(ui, 1236, out)
+		 return
+	  else
+		 q[i]=qtest
+	  end
+   end
+   simExtCustomUI_setLabelText(ui, 1236, "Successful conversion:&lt;br&gt;"..newVal)
+   changeAllSliders(ui, q)
+   ref_ang = q
+end
+
+
+function jointEntry(ui,id,newVal)
+   angle = tonumber(newVal)
+   if (angle==nil) then
+	  print("Could not convert number..."..newVal)
+	  return
+   end
+   -- if (angle &gt;= 2*math.pi) then
+   -- 	  print("Clipping angle to 2pi")
+   -- 	  angle = 2*math.pi
+   -- end
+   -- if (angle &lt;= -2*math.pi) then
+   -- 	  print("Clipping angle to -2pi")
+   -- 	  angle = -2*math.pi
+   -- end
+   for i=1,#jh,1 do
+	  if (id==7000+i) then
+		 simExtCustomUI_setLabelText(ui,3000+i,string.format('Reference = %+6.3f',angle))
+		 ref_ang[i]=angle
+		 changeAllSliders(ui, ref_ang)
+		 break
+	  end
+   end
+end
+
+
+function eul2so3_xyzr(a,b,c)
+   -- Build empty array
+   R = {}
+   for i=1,3,1 do
+	  R[i] = {}
+	  for j=1,3,1 do
+		 R[i][j] = 0
+	  end
+   end
+
+   -- calculate constants
+   local c1,s1 = math.cos(a),math.sin(a)
+   local c2,s2 = math.cos(b),math.sin(b)
+   local c3,s3 = math.cos(c),math.sin(c)
+   
+   -- fill out values:
+   -- https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
+   R[1][1] = c2*c3
+   R[1][2] = -c2*s3
+   R[1][3] = s2
+   R[2][1] = c1*s3+c3*s1*s2
+   R[2][2] = c1*c3-s1*s2*s3
+   R[2][3] = -c2*s1
+   R[3][1] = s1*s3-c1*c3*s2
+   R[3][2] = c3*s1+c1*s2*s3
+   R[3][3] = c1*c2
+   return R
+end
+
+function so3andp2se3(R,p)
+   local g = {}
+   for i=1,4,1 do
+	  g[i] = {}
+	  for j=1,4,1 do
+		 if (i&lt;=3) then
+			if (j&lt;=3) then
+			   g[i][j] = R[i][j]
+			else
+			   g[i][j] = p[i]
+			end
+		 else
+			if (j&lt;=3) then
+			   g[i][j] = 0
+			else
+			   g[i][j] = 1
+			end
+		 end
+	  end
+   end
+   return g
+end
+
+function createSE3string(pos,ori)
+   -- first let's convert the orientation into an SE(3) matrix:
+   local R=eul2so3_xyzr(ori[1], ori[2], ori[3])
+   local g=so3andp2se3(R,pos)
+   local out="&lt;b&gt;&lt;big&gt;&lt;tt&gt;"
+   for i=1,4,1 do
+	  out=out.."| "
+	  for j=1,4,1 do
+		 out=out..string.format(" %+6.3f",g[i][j])
+	  end
+	  out=out.." | &lt;br&gt;"
+   end
+   out=out.."&lt;/tt&gt;&lt;/big&gt;&lt;/b&gt;"
+   return out
+end
+
+function calcSE3(ui, id, target, reference)
+   pos=simGetObjectPosition(target,reference)
+   ori=simGetObjectOrientation(target,reference)
+   if pos and ori then
+	  out=createSE3string(pos,ori)
+	  simExtCustomUI_setLabelText(ui,id,out)
+   end
+end
+
+function closeEventHandler(h)
+    simAddStatusbarMessage('Window '..h..' is closing...')
+    simExtCustomUI_hide(h)
+end
+
+if (sim_call_type==sim_childscriptcall_initialization) then
+   -- joint limits:
+   --    X: (-2, 2)
+   --    Y: (-2, 2)
+   --   Th: (-360, 360)
+   --    1: (-168, 168)
+   --    2: (-64, 89)
+   --    3: (-150, 145)
+   --    4: (-102, 102)
+   --    5: (-160, 160)
+   
+   xml = [[
+   &lt;ui closeable="false" onclose="closeEventHandler" resizable="true"&gt;
+     &lt;tabs&gt;
+
+	   &lt;tab title="Enter Config and SE(3) Value"&gt;
+		 &lt;group&gt;
+		   &lt;group layout="vbox"&gt;
+			 &lt;label text="&lt;big&gt; Configuration Entry:&lt;/big&gt;" wordwrap="false" style="font-weight: bold;"/&gt;
+			 &lt;label text="Enter 8 comma-separated angles" /&gt;
+			 &lt;edit value="" oneditingfinished="fulljointEntry" /&gt;
+			 &lt;label value="" wordwrap="false" /&gt;
+			 &lt;label text="&lt;big&gt; Current configuration:&lt;/big&gt;" wordwrap="false" style="font-weight: bold;"/&gt;
+			 &lt;group layout="vbox"&gt;
+			   &lt;label value="" id="1237" wordwrap="true" /&gt;
+			 &lt;/group&gt;
+			 &lt;label text="&lt;big&gt; Messages:&lt;/big&gt;" wordwrap="false" style="font-weight: bold;"/&gt;
+			 &lt;group layout="vbox"&gt;
+			   &lt;label value="" id="1236" wordwrap="true" /&gt;
+			 &lt;/group&gt;
+		   &lt;/group&gt;
+		   &lt;group&gt;
+			 &lt;!-- &lt;group&gt; --&gt;
+			   &lt;label text="&lt;big&gt; Current SE(3) (world to end-effector):&lt;/big&gt;" wordwrap="false" style="font-weight: bold;"/&gt;
+			   &lt;!-- &lt;button text="Calculate SE(3) transform:" onclick="calcSE3" id="1235"/&gt; --&gt;
+			   &lt;label text="T(&Icirc;&cedil;) = " wordwrap="false" /&gt;
+			   &lt;label text="" id="1234" wordwrap="false" /&gt;
+			 &lt;!-- &lt;/group&gt; --&gt;
+			  &lt;!-- &lt;group&gt; --&gt;
+			  &lt;!--   &lt;label text="&lt;big&gt; Settings:&lt;/big&gt;" wordwrap="false" style="font-weight: bold;"/&gt; --&gt;
+			  &lt;!--   &lt;checkbox text="Use degrees instead of radians?" checked="false" onchange="toggleRadians" /&gt; --&gt;
+			  &lt;!-- &lt;/group&gt; --&gt;
+		   &lt;/group&gt;
+		   &lt;group&gt;
+			 &lt;!-- &lt;group&gt; --&gt;
+			   &lt;label text="&lt;big&gt; Current SE(3) (world to youBot base):&lt;/big&gt;" wordwrap="false" style="font-weight: bold;"/&gt;
+			   &lt;!-- &lt;button text="Calculate SE(3) transform:" onclick="calcSE3" id="1235"/&gt; --&gt;
+			   &lt;label text="T(&Icirc;&cedil;) = " wordwrap="false" /&gt;
+			   &lt;label text="" id="1235" wordwrap="false" /&gt;
+			 &lt;!-- &lt;/group&gt; --&gt;
+			  &lt;!-- &lt;group&gt; --&gt;
+			  &lt;!--   &lt;label text="&lt;big&gt; Settings:&lt;/big&gt;" wordwrap="false" style="font-weight: bold;"/&gt; --&gt;
+			  &lt;!--   &lt;checkbox text="Use degrees instead of radians?" checked="false" onchange="toggleRadians" /&gt; --&gt;
+			  &lt;!-- &lt;/group&gt; --&gt;
+		   &lt;/group&gt;
+           &lt;stretch /&gt;
+		 &lt;/group&gt;
+	   &lt;/tab&gt;
+
+	   
+       &lt;tab title="Joint Angle Sliders"&gt;
+		 &lt;group layout="grid" &gt;
+           &lt;group&gt;
+			 &lt;group layout="grid"&gt;
+               &lt;label text="&lt;big&gt; Chassis X:&lt;/big&gt;" id="6001" wordwrap="false" style="font-weight: bold;"/&gt;
+               &lt;label text="Reference =  0.000" id="3001" wordwrap="false" /&gt;
+               &lt;!-- &lt;label text="Actual =  0.000" id="5001" wordwrap="false" /&gt; --&gt;
+			 &lt;/group&gt;
+			 &lt;hslider id="4001" tick-position="above" tick-interval="333" minimum="-2000" maximum="2000" onchange="sliderChange" /&gt;
+			 &lt;group layout="grid"&gt;
+			   &lt;label text="Enter position (m):" /&gt;
+			   &lt;edit value="" id="7001" oneditingfinished="jointEntry" /&gt;
+			 &lt;/group&gt;
+		   &lt;/group&gt;
+		   
+		   &lt;group&gt;
+			 &lt;group layout="grid"&gt;
+			   &lt;label text="&lt;big&gt; Arm 2:&lt;/big&gt;" id="6005" wordwrap="false" style="font-weight: bold;"/&gt;
+			   &lt;label text="Reference =  0.000" id="3005" wordwrap="false" /&gt;
+			   &lt;!-- &lt;label text="Actual =  0.000" id="5005" wordwrap="false" /&gt; --&gt;
+			 &lt;/group&gt;
+			 &lt;hslider id="4005" tick-position="above" tick-interval="222" minimum="-1117" maximum="1553" onchange="sliderChange" /&gt;
+			 &lt;group layout="grid"&gt;
+			   &lt;label text="Enter joint angle (rad):" /&gt;
+			   &lt;edit value="" id="7005" oneditingfinished="jointEntry" /&gt;
+			 &lt;/group&gt;
+		   &lt;/group&gt;
+		   
+		   &lt;br/&gt;
+		   
+		   &lt;group&gt;
+			 &lt;group layout="grid"&gt;
+               &lt;label text="&lt;big&gt; Chassis Y:&lt;/big&gt;" id="6002" wordwrap="false" style="font-weight: bold;"/&gt;
+               &lt;label text="Reference =  0.000" id="3002" wordwrap="false" /&gt;
+               &lt;!-- &lt;label text="Actual =  0.000" id="5002" wordwrap="false" /&gt; --&gt;
+			 &lt;/group&gt;
+			 &lt;hslider id="4002" tick-position="above" tick-interval="333" minimum="-2000" maximum="2000" onchange="sliderChange" /&gt;
+			 &lt;group layout="grid"&gt;
+			   &lt;label text="Enter position (m):" /&gt;
+			   &lt;edit value="" id="7002" oneditingfinished="jointEntry" /&gt;
+			 &lt;/group&gt;
+		   &lt;/group&gt;
+
+		   
+		   &lt;group&gt;
+			 &lt;group layout="grid"&gt;
+			   &lt;label text="&lt;big&gt; Arm 3:&lt;/big&gt;" id="6006" wordwrap="false" style="font-weight: bold;"/&gt;
+			   &lt;label text="Reference =  0.000" id="3006" wordwrap="false" /&gt;
+			   &lt;!-- &lt;label text="Actual =  0.000" id="5006" wordwrap="false" /&gt; --&gt;
+			 &lt;/group&gt;
+			 &lt;hslider id="4006" tick-position="above" tick-interval="429" minimum="-2620" maximum="2530" onchange="sliderChange" /&gt;
+			 &lt;group layout="grid"&gt;
+			   &lt;label text="Enter joint angle (rad):" /&gt;
+			   &lt;edit value="" id="7006" oneditingfinished="jointEntry" /&gt;
+			 &lt;/group&gt;
+		   &lt;/group&gt;
+
+		   &lt;br/&gt;
+		   
+		   &lt;group&gt;
+			 &lt;group layout="grid"&gt;
+			   &lt;label text="&lt;big&gt; Chassis &Iuml;:&lt;/big&gt;" id="6003" wordwrap="false" style="font-weight: bold;"/&gt;
+			   &lt;label text="Reference =  0.000" id="3003" wordwrap="false" /&gt;
+			   &lt;!-- &lt;label text="Actual =  0.000" id="5003" wordwrap="false" /&gt; --&gt;
+			 &lt;/group&gt;
+			 &lt;hslider id="4003" tick-position="above" tick-interval="523" minimum="-3140" maximum="3140" onchange="sliderChange" /&gt;
+			 &lt;group layout="grid"&gt;
+			   &lt;label text="Enter joint angle (rad):" /&gt;
+			   &lt;edit value="" id="7003" oneditingfinished="jointEntry" /&gt;
+			 &lt;/group&gt;
+		   &lt;/group&gt;
+
+		   &lt;group&gt;
+		   	 &lt;group layout="grid"&gt;
+		   	   &lt;label text="&lt;big&gt; Arm 4:&lt;/big&gt;" id="6007" wordwrap="false" style="font-weight: bold;"/&gt;
+		   	   &lt;label text="Reference =  0.000" id="3007" wordwrap="false" /&gt;
+		   	   &lt;!-- &lt;label text="Actual =  0.000" id="5007" wordwrap="false" /&gt; --&gt;
+		   	 &lt;/group&gt;
+		   	 &lt;hslider id="4007" tick-position="above" tick-interval="296" minimum="-1780" maximum="1780" onchange="sliderChange" /&gt;
+		   	 &lt;group layout="grid"&gt;
+		   	   &lt;label text="Enter joint angle (rad):" /&gt;
+		   	   &lt;edit value="" id="7007" oneditingfinished="jointEntry" /&gt;
+		   	 &lt;/group&gt;
+		   &lt;/group&gt;
+
+		   &lt;br/&gt;
+		   
+		   &lt;group&gt;
+			 &lt;group layout="grid"&gt;
+			   &lt;label text="&lt;big&gt; Arm 1:&lt;/big&gt;" id="6004" wordwrap="false" style="font-weight: bold;"/&gt;
+			   &lt;label text="Reference =  0.000" id="3004" wordwrap="false" /&gt;
+			   &lt;!-- &lt;label text="Actual =  0.000" id="5004" wordwrap="false" /&gt; --&gt;
+			 &lt;/group&gt;
+			 &lt;hslider id="4004" tick-position="above" tick-interval="488" minimum="-2932" maximum="2932" onchange="sliderChange" /&gt;
+			 &lt;group layout="grid"&gt;
+			   &lt;label text="Enter joint angle (rad):" /&gt;
+			   &lt;edit value="" id="7004" oneditingfinished="jointEntry" /&gt;
+			 &lt;/group&gt;
+		   &lt;/group&gt;
+
+		   &lt;group&gt;
+		   	 &lt;group layout="grid"&gt;
+		   	   &lt;label text="&lt;big&gt; Arm 5:&lt;/big&gt;" id="6008" wordwrap="false" style="font-weight: bold;"/&gt;
+		   	   &lt;label text="Reference =  0.000" id="3008" wordwrap="false" /&gt;
+		   	   &lt;!-- &lt;label text="Actual =  0.000" id="5008" wordwrap="false" /&gt; --&gt;
+		   	 &lt;/group&gt;
+		   	 &lt;hslider id="4008" tick-position="above" tick-interval="481" minimum="-2890" maximum="2890" onchange="sliderChange" /&gt;
+		   	 &lt;group layout="grid"&gt;
+		   	   &lt;label text="Enter joint angle (rad):" /&gt;
+		   	   &lt;edit value="" id="7008" oneditingfinished="jointEntry" /&gt;
+		   	 &lt;/group&gt;
+		   &lt;/group&gt;
+		   
+		 &lt;/group&gt;
+		 
+	   &lt;/tab&gt;
+
+    &lt;/tabs&gt;
+&lt;/ui&gt;
+]]
+    ui=simExtCustomUI_create(xml)
+	-- get joints:
+	jh={-1,-1,-1,-1,-1,-1,-1,-1}
+	jh[1]=simGetObjectHandle('World_X_Joint')
+	jh[2]=simGetObjectHandle('World_Y_Joint')
+	jh[3]=simGetObjectHandle('World_Th_Joint')
+    for i=4,#jh,1 do
+	   jh[i]=simGetObjectHandle('Joint'..(i-3))
+    end
+	-- for i=1,#jh,1 do
+	--    print(string.format("jh[%d] = %d",i,jh[i]))
+	-- end
+	-- base=simGetObjectHandle('ArmBase_Frame')
+	world=simGetObjectHandle('WorldFrame')
+	base=simGetObjectHandle('BaseVisual')
+	ee=simGetObjectHandle('EE_Frame')
+	-- fill out initial string:
+	calcSE3(ui, 1234, ee, world)
+	calcSE3(ui, 1235, base, world)
+	-- array for reference angle
+	ref_ang={0,0,0,0,0,0,0,0}
+	-- array for storing when angles where manually entered
+	enteredString=""
+	-- angle parsing
+	toggleRadians(ui,0,0)
+end
+
+
+if (sim_call_type==sim_childscriptcall_actuation) then
+   applyJoints(jh, ref_ang)
+   -- array for actual angle
+   act_ang = getJoints(jh)
+   updateActualText(jh, act_ang)
+   calcSE3(ui, 1234, ee, world)
+   calcSE3(ui, 1235, base, world)
+end
+
+if (sim_call_type==sim_childscriptcall_sensing) then
+   
+end
+
+if (sim_call_type==sim_childscriptcall_cleanup) then
+    simExtCustomUI_destroy(ui)
+end
+</pre>
+<p>&nbsp;</p><h1>網際內容管理</h1>
+<p>這是位於 <a href="https://www.heroku.com">heroku</a> 的 <a href="https://github.com/chiamingyen/cmsimfly">CMSimfly</a> 網站, 由於能在網頁中維護的 <a href="https://www.heroku.com">heroku</a> 網站, 必須與其他雲端儲存系統結合, 而本站是在近端維護後, 提交推送到 <a href="https://www.heroku.com">heroku</a>, 因此目前只能展示&nbsp;<a href="https://git.heroku.com/wcms-scrum3.git">https://git.heroku.com/wcms-scrum3.git</a>&nbsp;倉儲中的網際內容資料, 透過瀏覽器修改的內容, 將會不定期遭 <a href="https://www.heroku.com">heroku</a> 刪除.</p>
+<p>儘管如此, 在近端維護後提交推送到遠端的資料維護模式, 仍可用來呈現網際內容管理相關程式的執行結果.</p>
+<p>例如:</p>
+<p><a href="/w1cda">w1cda 分組程式</a>&nbsp;</p>
+<p><a href="/w7cda">w7cda 列出缺席名單</a></p>
+<p><a href="/w5cdb">w5cdb 列出缺席名單</a></p>
+<p><a href="/w7cdb">w7cdb 列出缺席名單</a></p>
+<p><a href="/vecpw7">vecpw7 列出缺席名單</a></p><h2>使用流程</h2>
 <p><span style="background-color: #ffff00;">登入 heroku</span></p>
 <p>先在近端啟動 CMSimfly, 設法以網際模式協同維護內容後, 以 heroku login 登入 Heroku , 將近端內容提交推送到 Heroku 與同步 github 倉儲.</p>
 <p>heroku login</p>
@@ -165,8 +629,7 @@ ctx:stroke()
 <p><a href="/download/?type=files&amp;filename=dynamic_Modeling_and_Nonlinear_Position_Control_of_Jansen_Linkage_Mechanisms.pdf">dynamic_Modeling_and_Nonlinear_Position_Control_of_Jansen_Linkage_Mechanisms.pdf</a></p>
 <p>範例:</p>
 <p><iframe src="https://www.youtube.com/embed/Q8gUvwM89A8" width="560" height="315" frameborder="0" allowfullscreen="allowfullscreen"></iframe></p>
-<p><a href="/download/?type=files&amp;filename=intro_dynamics.pdf">動力學簡介.pdf</a></p><h2>符號式推導</h2>
-<p>參考資料:&nbsp;<a href="https://github.com/mdecourse/2017springcd/tree/gh-pages/data">https://github.com/mdecourse/2017springcd/tree/gh-pages/data</a>&nbsp;</p><h1>學習 V-rep</h1>
+<p><a href="/download/?type=files&amp;filename=intro_dynamics.pdf">動力學簡介.pdf</a></p><h2>符號式推導</h2><p>使用 Python 的符號式推導前, 需要先安裝 <a href="https://github.com/sympy/sympy">sympy</a> 模組:</p><pre class="brush:js;auto-links:false;toolbar:false" contenteditable="false">python -m pip install sympy</pre><p>參考資料:&nbsp;<a href="https://github.com/mdecourse/2017springcd/tree/gh-pages/data">https://github.com/mdecourse/2017springcd/tree/gh-pages/data</a>&nbsp;</p><p>PLAP - 已知三角形 abc,&nbsp; <span style="background-color: #ffff00;">P</span>oint a 座標, <span style="background-color: #ffff00;">L</span>ength of a to C, and <span style="background-color: #ffff00;">A</span>ngle of ac link relative to ab, and <span style="background-color: #ffff00;">P</span>oint b 座標.</p><p>求 c 點座標, 表示為已知輸入變數的方程式.</p><p><img src="/download/?type=images&amp;filename=fourbar_plap_solvespace.png" alt="" width="800" height="486" /></p><pre class="brush:py;auto-links:false;toolbar:false" contenteditable="false">#PLAPfrom sympy import symbols, sqrt, solve, cos, sin, Abs# inputsax, ay, bx, by, bac, ac = symbols('ax ay bx by bac ac')# intermediate variablesab, dab = symbols('ab dab')ad, bd = symbols('ad bd')# outputscx, cy = symbols('cx cy')# 從 a, b 點座標求 ab, ad 與 bdab = sqrt((ax-bx)**2+(ay-by)**2)ad = Abs(bx-ax)bd = Abs(by-ay)data = solve(-bd**2+ad**2+ab**2-2*ad*ab*cos(dab), dab)# 第1組解dab = data[0]cx = ax+ac*cos(dab+bac)cy = ay+ac*sin(dab+bac)print("cx=", cx, "cy=", cy)# 第二組解dab = data[1]cx = ax+ac*cos(dab+bac)cy = ay+ac*sin(dab+bac)print("cx=", cx, "cy=", cy)</pre><p>PLLP - 已知三角形 abc,&nbsp; 順時鐘方向 Point a 座標,&nbsp; Length of ac 與 Length of cb, 以及 Point b 座標.</p><p>求 c 點座標, 表示為已知輸入變數的方程式.</p><pre class="brush:py;auto-links:false;toolbar:false" contenteditable="false">#PLLPfrom sympy import symbols, sqrt, solve, cos, sin, Abs# inputsax, ay, bx, by, ac, cb = symbols('ax ay bx by ac cb')# intermediate variablesab, dab, bac, degree= symbols('ab dab bac degree')ad, bd = symbols('ad bd')# outputscx, cy = symbols('cx cy')# 從 a, b 點座標求 ab, ad 與 bdab = sqrt((ax-bx)**2+(ay-by)**2)'''ac = sqrt((ax-cx)**2+(ay-cy)**2)cb = sqrt((cx-bx)**2+(cy-by)**2)#ac = sqrt((ax-cx)**2+(ay-cy)**2)'''# 從兩組解中擇一data = solve([ac**2-((ax-cx)**2+(ay-cy)**2), cb**2-((cx-bx)**2+(cy-by)**2)], [cx, cy])# 第1組解print("cx = ", data[0][0])print("cy = ", data[1][0])# 第2組解print("cx = ", data[0][1])print("cy = ", data[1][1])</pre><p>PLPP - 已知 Point b 座標, Length of be, Point c 座標與 Point d 座標.</p><p>求 e 點座標, 表示為已知輸入變數的方程式.</p><p><img src="/download/?type=images&amp;filename=plpp_crank_slider.png" alt="" width="800" height="446" /></p><pre class="brush:py;auto-links:false;toolbar:false" contenteditable="false">#PLPPfrom sympy import symbols, sqrt, solve# inputsbx, by, be, cx, cy, dx, dy = symbols('bx by be cx cy dx dy')# intermediate variablescd, m= symbols('cd m')# outputsex, ey = symbols('ex ey')# e on line cdcd = sqrt((cx-dx)**2+(cy-dy)**2)m = (dx-cx)/(dy-cy)data = solve([be-sqrt((bx-ex)**2+(by-ey)**2), ex-cx-m*(ey-cy)] ,  [ex, ey])print(data)'''[(((cx - dx)*(bx*cx*cy - bx*cx*dy - bx*cy*dx + bx*dx*dy + by*cy**2 - 2*by*cy*dy + by*dy**2 + cx**2*dy - cx*cy*dx - cx*dx*dy + cy*dx**2 + (-cy + dy)*sqrt(be**2*cx**2 - 2*be**2*cx*dx + be**2*cy**2 - 2*be**2*cy*dy + be**2*dx**2 + be**2*dy**2 - bx**2*cy**2 + 2*bx**2*cy*dy - bx**2*dy**2 + 2*bx*by*cx*cy - 2*bx*by*cx*dy - 2*bx*by*cy*dx + 2*bx*by*dx*dy - 2*bx*cx*cy*dy + 2*bx*cx*dy**2 + 2*bx*cy**2*dx - 2*bx*cy*dx*dy - by**2*cx**2 + 2*by**2*cx*dx - by**2*dx**2 + 2*by*cx**2*dy - 2*by*cx*cy*dx - 2*by*cx*dx*dy + 2*by*cy*dx**2 - cx**2*dy**2 + 2*cx*cy*dx*dy - cy**2*dx**2)) - (cx*dy - cy*dx)*(cx**2 - 2*cx*dx + cy**2 - 2*cy*dy + dx**2 + dy**2))/((cy - dy)*(cx**2 - 2*cx*dx + cy**2 - 2*cy*dy + dx**2 + dy**2)), (bx*cx*cy - bx*cx*dy - bx*cy*dx + bx*dx*dy + by*cy**2 - 2*by*cy*dy + by*dy**2 + cx**2*dy - cx*cy*dx - cx*dx*dy + cy*dx**2 + (-cy + dy)*sqrt(be**2*cx**2 - 2*be**2*cx*dx + be**2*cy**2 - 2*be**2*cy*dy + be**2*dx**2 + be**2*dy**2 - bx**2*cy**2 + 2*bx**2*cy*dy - bx**2*dy**2 + 2*bx*by*cx*cy - 2*bx*by*cx*dy - 2*bx*by*cy*dx + 2*bx*by*dx*dy - 2*bx*cx*cy*dy + 2*bx*cx*dy**2 + 2*bx*cy**2*dx - 2*bx*cy*dx*dy - by**2*cx**2 + 2*by**2*cx*dx - by**2*dx**2 + 2*by*cx**2*dy - 2*by*cx*cy*dx - 2*by*cx*dx*dy + 2*by*cy*dx**2 - cx**2*dy**2 + 2*cx*cy*dx*dy - cy**2*dx**2))/(cx**2 - 2*cx*dx + cy**2 - 2*cy*dy + dx**2 + dy**2)), (((cx - dx)*(bx*cx*cy - bx*cx*dy - bx*cy*dx + bx*dx*dy + by*cy**2 - 2*by*cy*dy + by*dy**2 + cx**2*dy - cx*cy*dx - cx*dx*dy + cy*dx**2 + (cy - dy)*sqrt(be**2*cx**2 - 2*be**2*cx*dx + be**2*cy**2 - 2*be**2*cy*dy + be**2*dx**2 + be**2*dy**2 - bx**2*cy**2 + 2*bx**2*cy*dy - bx**2*dy**2 + 2*bx*by*cx*cy - 2*bx*by*cx*dy - 2*bx*by*cy*dx + 2*bx*by*dx*dy - 2*bx*cx*cy*dy + 2*bx*cx*dy**2 + 2*bx*cy**2*dx - 2*bx*cy*dx*dy - by**2*cx**2 + 2*by**2*cx*dx - by**2*dx**2 + 2*by*cx**2*dy - 2*by*cx*cy*dx - 2*by*cx*dx*dy + 2*by*cy*dx**2 - cx**2*dy**2 + 2*cx*cy*dx*dy - cy**2*dx**2)) - (cx*dy - cy*dx)*(cx**2 - 2*cx*dx + cy**2 - 2*cy*dy + dx**2 + dy**2))/((cy - dy)*(cx**2 - 2*cx*dx + cy**2 - 2*cy*dy + dx**2 + dy**2)), (bx*cx*cy - bx*cx*dy - bx*cy*dx + bx*dx*dy + by*cy**2 - 2*by*cy*dy + by*dy**2 + cx**2*dy - cx*cy*dx - cx*dx*dy + cy*dx**2 + (cy - dy)*sqrt(be**2*cx**2 - 2*be**2*cx*dx + be**2*cy**2 - 2*be**2*cy*dy + be**2*dx**2 + be**2*dy**2 - bx**2*cy**2 + 2*bx**2*cy*dy - bx**2*dy**2 + 2*bx*by*cx*cy - 2*bx*by*cx*dy - 2*bx*by*cy*dx + 2*bx*by*dx*dy - 2*bx*cx*cy*dy + 2*bx*cx*dy**2 + 2*bx*cy**2*dx - 2*bx*cy*dx*dy - by**2*cx**2 + 2*by**2*cx*dx - by**2*dx**2 + 2*by*cx**2*dy - 2*by*cx*cy*dx - 2*by*cx*dx*dy + 2*by*cy*dx**2 - cx**2*dy**2 + 2*cx*cy*dx*dy - cy**2*dx**2))/(cx**2 - 2*cx*dx + cy**2 - 2*cy*dy + dx**2 + dy**2))]'''</pre><p>&nbsp;</p><h1>學習 V-rep</h1>
 <p>Virtual robot experimentation platform 虛擬機器人實驗平台</p>
 <p>The robot simulator V-REP, with integrated development environment, is based on a distributed control architecture: each object/model can be individually controlled via an embedded script, a plugin, a ROS or BlueZero node, a remote API client, or a custom solution. This makes V-REP very versatile and ideal for multi-robot applications. Controllers can be written in C/C++, Python, Java, Lua, Matlab or Octave.</p>
 <p>V-REP is used for fast algorithm development, factory automation simulations, fast prototyping and verification, robotics related education, remote monitoring, safety double-checking, etc.</p>
