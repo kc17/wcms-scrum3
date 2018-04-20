@@ -18,7 +18,8 @@
 <li>詳細說明各組如何進行協同設計, 如何利用 Gitbook、Github 與近端或雲端主機增加設計流程效益?</li>
 <li>提供各組鋼球運動系統的細部零件材料表、各零件工程圖與組立檔, 若使用 Solidworks, Inventor 或 Creo 請提供相關檔案, 若使用 Onshape, 請提供個別零組件與工程圖的網路連結.</li>
 <li>所有組員的貢獻請各自使用學號登記下的 cd2018 倉儲展示, 各組期中報告則整理在各組的 Gitbook 中.</li>
-</ol><h2>wcms2018</h2>
+</ol>
+<h3>Pyslvs</h3><p>下載 Pyslvs 平面機構模擬分析與合成套件&nbsp;<a href="https://drive.google.com/open?id=1t3HGbhujIhFHealc5xQ2AHWOY2m99pPL" rel="nofollow">pyslvs-18.4.0.mscv1900-amd64.7z</a></p><p><iframe src="https://www.youtube.com/embed/XPfK5aO95BI" width="560" height="315" frameborder="0" allowfullscreen="allowfullscreen"></iframe></p><h2>wcms2018</h2>
 <p>網際內容管理</p>
 <p>倉儲: <a href="https://github.com/mdecourse/wcms2018">https://github.com/mdecourse/wcms2018</a></p>
 <p>議題: <a href="https://github.com/mdecourse/wcms2018/issues">https://github.com/mdecourse/wcms2018/issues</a></p>
@@ -48,7 +49,29 @@
 <li>其他</li>
 </ol>
 <p>參考資料:</p>
-<p>群準防寫卡: <a href="http://www.teamsoftex.com/tw/data/file/201712/Card.pdf">http://www.teamsoftex.com/tw/data/file/201712/Card.pdf</a></p><h2>vecp2018</h2>
+<p>群準防寫卡: <a href="http://www.teamsoftex.com/tw/data/file/201712/Card.pdf">http://www.teamsoftex.com/tw/data/file/201712/Card.pdf</a></p>
+<h3>Github</h3>
+<p>透過 git remote add, 可以將 heorku 上的程式與 github 倉儲同步, 並且再設法將程式及資料轉到自建的 Ubuntu 伺服器 (<a href="https://www.ubuntu.com/info/release-end-of-life">LTS lifecycle</a>)</p>
+<p>若以部署 CMSimfly 為例, 基本的使用流程如下:</p>
+<ol>
+<li>從&nbsp;<a href="https://github.com/chiamingyen/cmsimfly">https://github.com/chiamingyen/cmsimfly</a>&nbsp;取得最新原始碼後, 納入 Procfile, requirements.txt 與 runtime.txt 等三個檔案</li>
+<li>在近端以 python wsgi.py 執行, 可以從 <a>https://localhost:9443</a>&nbsp;登入, 或改為區網或廣域網路啟動.</li>
+<li>當使用者在近端維護資料, 只會更動 local_data 目錄中的檔案, 其他部分為程式碼.</li>
+<li>假如要將近端的 CMSimfly 部署到 heroku, 只需要利用 gmail 帳號, 登記一個 heroku 帳號後, 建立一個 app, 假設此 app 名稱為 app_name, 之後進入 settings 取得該 app 對應的 heroku git 連結, 並假設此連結為 heroku_git.</li>
+<li>接著在近端, 以 heroku login 登入系統, 以 git clone heroku_git 取下空的 heroku app 倉儲.</li>
+<li>將近端的 CMSimfly 複製到 heroku app 對應的近端倉儲中, 然後以 git add, commit 與 push, 就可以將資料提交推送到 heroku, 等 heroku 安裝所需模組並啟動後, 就可以連線到 https://app_name.herokuapp.com.</li>
+</ol>
+<p>Procfile 內容:</p>
+<pre class="brush:js;auto-links:false;toolbar:false" contenteditable="false">web gunicorn flaskapp:app</pre>
+<p>requirements.txt 內容:</p>
+<pre class="brush:html;auto-links:false;toolbar:false" contenteditable="false">Flask==0.12.2
+gunicorn==19.7.1
+Jinja2==2.10
+MarkupSafe==1.0
+Werkzeug==0.14.1</pre>
+<p>runtime.txt 內容:</p>
+<pre class="brush:html;auto-links:false;toolbar:false" contenteditable="false">python-3.6.4</pre>
+<p>&nbsp;</p><h2>vecp2018</h2>
 <p>計算機程式</p>
 <p>倉儲: <a href="https://github.com/mdecourse/vecp2018">https://github.com/mdecourse/vecp2018</a></p>
 <p>議題: <a href="https://github.com/mdecourse/vecp2018/issues">https://github.com/mdecourse/vecp2018/issues</a></p>
@@ -620,7 +643,13 @@ ctx:stroke()
 <p>上述原始碼為:</p>
 <pre class="brush:js;auto-links:false;toolbar:false" contenteditable="false">當 $a \ne 0$, 一元二次方程式 (ax^2 + bx + c = 0) 有兩組解, 可以寫成: $$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$</pre>
 <p>希臘字母:&nbsp;<a href="https://en.wikipedia.org/wiki/Greek_alphabet">https://en.wikipedia.org/wiki/Greek_alphabet</a>&nbsp;</p>
-<p>&nbsp;</p><h2>Matlab</h2><p>目前系上所取得的 Matlab 為 R2017a 版本, 可以安裝在 Windows, Linux 與 Mac 操作系統中.</p><p>Ubuntu 中安裝 Matlab 的流程:</p><p><iframe src="https://www.youtube.com/embed/X_PNVr01F8k" width="560" height="315" frameborder="0" allowfullscreen="allowfullscreen"></iframe></p><p>Windows 10 安裝 Matlab:</p><p>Matlab R2015a 之後的版本可以安裝在 Windows 10 操作系統, 且可以製作成可攜, 只要開啟時透過網路到認證主機取得授權即可.</p><p>需要安裝 MSVc++ 2005 redistributable 套件</p><h1>平面機構分析</h1>
+<p>&nbsp;</p><h2>Matlab</h2>
+<p>目前系上所取得的 Matlab 為 R2017a 版本, 可以安裝在 Windows, Linux 與 Mac 操作系統中.</p>
+<p>Ubuntu 中安裝 Matlab 的流程:</p>
+<p><iframe src="https://www.youtube.com/embed/X_PNVr01F8k" width="560" height="315" frameborder="0" allowfullscreen="allowfullscreen"></iframe></p>
+<p>Windows 10 安裝 Matlab:</p>
+<p>Matlab R2015a 之後的版本可以安裝在 Windows 10 操作系統, 且可以製作成可攜, 只要開啟時透過網路到認證主機取得授權即可.</p>
+<p>需要安裝 MSVc++ 2005 redistributable 套件</p><h1>平面機構分析</h1>
 <p>以四連桿及曲柄滑塊機構的位移、速度與加速度分析為例, 希望延伸到八連桿 <a href="https://en.wikipedia.org/wiki/Jansen%27s_linkage">Jansen's walking linkage</a></p>
 <p>四連桿與曲柄滑塊:</p>
 <p><a href="/download/?type=files&amp;filename=Analysis_of_Simple_Planar_Linkages.pdf">Analysis_of_Simple_Planar_Linkages.pdf</a></p>
