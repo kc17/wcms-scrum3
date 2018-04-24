@@ -19,7 +19,9 @@
 <li>提供各組鋼球運動系統的細部零件材料表、各零件工程圖與組立檔, 若使用 Solidworks, Inventor 或 Creo 請提供相關檔案, 若使用 Onshape, 請提供個別零組件與工程圖的網路連結.</li>
 <li>所有組員的貢獻請各自使用學號登記下的 cd2018 倉儲展示, 各組期中報告則整理在各組的 Gitbook 中.</li>
 </ol>
-<h3>Pyslvs</h3><p>下載 Pyslvs 平面機構模擬分析與合成套件&nbsp;<a href="https://drive.google.com/open?id=1t3HGbhujIhFHealc5xQ2AHWOY2m99pPL" rel="nofollow">pyslvs-18.4.0.mscv1900-amd64.7z</a></p><p><iframe src="https://www.youtube.com/embed/XPfK5aO95BI" width="560" height="315" frameborder="0" allowfullscreen="allowfullscreen"></iframe></p><h2>wcms2018</h2>
+<h3>Pyslvs</h3>
+<p>下載 Pyslvs 平面機構模擬分析與合成套件&nbsp;<a href="https://drive.google.com/open?id=1t3HGbhujIhFHealc5xQ2AHWOY2m99pPL" rel="nofollow">pyslvs-18.4.0.mscv1900-amd64.7z</a></p>
+<p><iframe src="https://www.youtube.com/embed/XPfK5aO95BI" width="560" height="315" frameborder="0" allowfullscreen="allowfullscreen"></iframe></p><h2>wcms2018</h2>
 <p>網際內容管理</p>
 <p>倉儲: <a href="https://github.com/mdecourse/wcms2018">https://github.com/mdecourse/wcms2018</a></p>
 <p>議題: <a href="https://github.com/mdecourse/wcms2018/issues">https://github.com/mdecourse/wcms2018/issues</a></p>
@@ -552,29 +554,7 @@ end
 <p><a href="/w7cda">w7cda 列出缺席名單</a></p>
 <p><a href="/w5cdb">w5cdb 列出缺席名單</a></p>
 <p><a href="/w7cdb">w7cdb 列出缺席名單</a></p>
-<p><a href="/vecpw7">vecpw7 列出缺席名單</a></p><h2>使用流程</h2>
-<p><span style="background-color: #ffff00;">登入 heroku</span></p>
-<p>先在近端啟動 CMSimfly, 設法以網際模式協同維護內容後, 以 heroku login 登入 Heroku , 將近端內容提交推送到 Heroku 與同步 github 倉儲.</p>
-<p>heroku login</p>
-<p>git clone or git pull 後以 python&nbsp; app_run.py 啟動, 並以瀏覽器打開 <a>http://localhost:5000</a></p>
-<p><span style="background-color: #ffff00;">平行批次檔指令</span></p>
-<p>由於在近端啟動 CMSimfly 網站時, 希望以 batch 指令同時啟動 Flask 網際程式與近端網頁, 這時需要利用能平行開啟執行的 MParallel 工具, 從&nbsp;<a href="https://github.com/lordmulder/MParallel">https://github.com/lordmulder/MParallel&nbsp;</a>&nbsp;下載 mparallet.exe 後, 放入可攜系統的 y:\ 目錄, 建立 run.bat 如下:</p>
-<pre class="brush:ps;auto-links:false;toolbar:false" contenteditable="false">MParallel.exe --count=2 python app_run.py : C:\Program Files (x86)\Google\Chrome\Application\chrome.exe "http://localhost:5000"
-</pre>
-<p>啟動後便可同時執行近端 app_run.py 與 chrome 網頁開啟.</p>
-<p><span style="background-color: #ffff00;">在近端維護網站內容</span></p>
-<p>CMSimfly&nbsp; 在區網或廣域網路中執行, 登入後可以維護網站內容</p>
-<p><span style="background-color: #ffff00;">提交推送網站版本</span></p>
-<p>提交推送到 Heroku</p>
-<p>git add .</p>
-<p>git commit -m "提交新版本"</p>
-<p>git push</p>
-<p><span style="background-color: #ffff00;">同步提交推送到 Github</span></p>
-<p>先設定 git remote add 到對應的 github 空倉儲</p>
-<p>git remote add github <a href="https://github.com/mdecourse/wcms-scrum3.git">https://github.com/mdecourse/wcms-scrum3.git</a></p>
-<p>接著再將版本推送到 wcm-scrum3</p>
-<p>git push github</p>
-<h2>與 Google 表單結合</h2>
+<p><a href="/vecpw7">vecpw7 列出缺席名單</a></p><h2>使用流程</h2><p><span style="background-color: #ffff00;">登入 heroku</span></p><p>先在近端啟動 CMSimfly, 設法以網際模式協同維護內容後, 以 heroku login 登入 Heroku , 將近端內容提交推送到 Heroku 與同步 github 倉儲.</p><p>設定 proxy 代理主機</p><p>set http_proxy=http://your_proxy_server:port</p><p>heroku login</p><p>git clone or git pull 後以 python&nbsp; app_run.py 啟動, 並以瀏覽器打開 <a>http://localhost:5000</a></p><p><span style="background-color: #ffff00;">平行批次檔指令</span></p><p>由於在近端啟動 CMSimfly 網站時, 希望以 batch 指令同時啟動 Flask 網際程式與近端網頁, 這時需要利用能平行開啟執行的 MParallel 工具, 從&nbsp;<a href="https://github.com/lordmulder/MParallel">https://github.com/lordmulder/MParallel&nbsp;</a>&nbsp;下載 mparallet.exe 後, 放入可攜系統的 y:\ 目錄, 建立 run.bat 如下:</p><pre class="brush:ps;auto-links:false;toolbar:false" contenteditable="false">MParallel.exe --count=2 python app_run.py : C:\Program Files (x86)\Google\Chrome\Application\chrome.exe "http://localhost:5000"</pre><p>啟動後便可同時執行近端 app_run.py 與 chrome 網頁開啟.</p><p><span style="background-color: #ffff00;">在近端維護網站內容</span></p><p>CMSimfly&nbsp; 在區網或廣域網路中執行, 登入後可以維護網站內容</p><p><span style="background-color: #ffff00;">提交推送網站版本</span></p><p>提交推送到 Heroku</p><p>git add .</p><p>git commit -m "提交新版本"</p><p>git push</p><p><span style="background-color: #ffff00;">同步提交推送到 Github</span></p><p>先設定 git remote add 到對應的 github 空倉儲</p><p>以下將 git url 在此倉儲下, 將 remote add 的對應命名為 github</p><p>git remote add github <a href="https://github.com/mdecourse/wcms-scrum3.git">https://github.com/mdecourse/wcms-scrum3.git</a></p><p>接著再將版本推送到 wcm-scrum3</p><p>git push github</p><h2>與 Google 表單結合</h2>
 <p>Google forms:&nbsp;<a href="https://www.google.com/intl/zh-TW_tw/forms/about/">https://www.google.com/intl/zh-TW_tw/forms/about/</a>&nbsp;</p>
 <p>網際內容管理與 <a href="https://docs.google.com/forms">Google 表單</a>結合, 可以直接在雲端上建立問卷, 由使用者填寫後, 轉為資料檔後, 經由雲端程式解讀後, 將結果以網頁顯示.</p>
 <p>WCMS 課程第七週分組作業:</p>
