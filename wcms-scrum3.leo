@@ -326,8 +326,9 @@ for i in range(len(search_result)):
 tinymce.init({
   selector: "textarea",
   height: 500,
-  element_format : "xhtml",
+  element_format : "html",
   language : "en",
+  extended_valid_elements:"script[language|type|src]",
   plugins: [
     'advlist autolink lists link image charmap print preview hr anchor pagebreak',
     'searchreplace wordcount visualblocks visualchars code fullscreen',
@@ -898,6 +899,7 @@ init_mathjax = function() {
 }
 init_mathjax();
 &lt;/script&gt;
+&lt;script src="/static/fengari-web.js"&gt;&lt;/script&gt;
 '''
 </t>
 <t tx="leo.20180408153206.12">def set_css():

@@ -17,7 +17,7 @@
 <v t="amd.20160714225847.1"><vh>@edit README.md</vh></v>
 <v t="amd.20160714230137.1"><vh>@edit .gitignore</vh></v>
 <v t="amd.20160714230155.1"><vh>@edit LICENSE</vh></v>
-<v t="amd.20160715000709.1"><vh>註解</vh>
+<v t="amd.20160715000709.1" a="E"><vh>註解</vh>
 <v t="amd.20160715211540.1"><vh>處理 url 與 edit</vh></v>
 <v t="amd.20160715213810.1"><vh>必須處理 downloads 與 images 目錄</vh></v>
 </v>
@@ -28,7 +28,7 @@
 <v t="amd.20160714230021.1"><vh>@edit init.py</vh></v>
 <v t="amd.20160714230050.1"><vh>@edit nocache.py</vh></v>
 <v t="amd.20160718130611.1"><vh>@edit .gitignore</vh></v>
-<v t="amd.20160717222221.1" a="E"><vh>@path static</vh>
+<v t="amd.20160717222221.1"><vh>@path static</vh>
 <v t="amd.20160717222242.1"><vh>@edit axuploader.js</vh></v>
 <v t="amd.20160718125932.1"><vh>@edit viewstl.html</vh></v>
 <v t="amd.20160718125943.1"><vh>@edit stlviewer.js</vh></v>
@@ -333,16 +333,10 @@ app.config['download_dir'] = download_dir
 # set the secret key.  keep this really secret:
 app.secret_key = 'A0Zr9@8j/3yX R~XHH!jmN]LWX/,?R@T'
 
-
-
-
-
-
-
-
 </t>
 <t tx="amd.20160714230833.4"># 子目錄中註冊藍圖位置
-#app.register_blueprint(users.g1.user1.g1app)</t>
+#app.register_blueprint(users.g1.user1.g1app)
+</t>
 <t tx="amd.20160714231055.1"># seperate page need heading and edit variables, if edit=1, system will enter edit mode
 # single page edit will use ssavePage to save content, it means seperate save page
 @app.route('/get_page')
@@ -708,7 +702,8 @@ def file_lister(directory, type=None, page=1, item_per_page=10):
     if type == "file":
         return outstring+"&lt;br /&gt;&lt;br /&gt;&lt;a href='fileuploadform'&gt;file upload&lt;/a&gt;"
     else:
-        return outstring+"&lt;br /&gt;&lt;br /&gt;&lt;a href='imageuploadform'&gt;image upload&lt;/a&gt;"</t>
+        return outstring+"&lt;br /&gt;&lt;br /&gt;&lt;a href='imageuploadform'&gt;image upload&lt;/a&gt;"
+</t>
 <t tx="amd.20160714231903.1">def downloadlist_access_list(files, starti, endi):
     # different extension files, associated links were provided
     # popup window to view images, video or STL files, other files can be downloaded directly
@@ -734,7 +729,8 @@ def file_lister(directory, type=None, page=1, item_per_page=10):
         # direct download files
         else:
             outstring += "&lt;input type='checkbox' name='filename' value='"+files[index]+"'&gt;&lt;a href='/download/?type=files&amp;filename="+files[index]+"'&gt;"+files[index]+"&lt;/a&gt; ("+str(fileSize)+")&lt;br /&gt;"
-    return outstring</t>
+    return outstring
+</t>
 <t tx="amd.20160714231915.1">def imagelist_access_list(files, starti, endi):
     # different extension files, associated links were provided
     # popup window to view images, video or STL files, other files can be downloaded directly
@@ -750,7 +746,8 @@ def file_lister(directory, type=None, page=1, item_per_page=10):
             outstring += '&lt;input type="checkbox" name="filename" value="'+files[index]+'"&gt;&lt;a href="javascript:;" onClick="window.open(\'/images/'+ \
             files[index]+'\',\'images\', \'catalogmode\',\'scrollbars\')"&gt;'+files[index]+'&lt;/a&gt; ('+str(fileSize)+')&lt;br /&gt;'
 
-    return outstring</t>
+    return outstring
+</t>
 <t tx="amd.20160714231925.1">def sizeof_fmt(num):
     for x in ['bytes','KB','MB','GB']:
         if num &lt; 1024.0:
@@ -837,6 +834,9 @@ window.location= 'https://' + location.host + location.pathname + location.searc
 &lt;script type="text/javascript" src="/static/syntaxhighlighter/shBrushCSharp.js"&gt;&lt;/script&gt;
 &lt;link type="text/css" rel="stylesheet" href="/static/syntaxhighlighter/css/shCoreDefault.css"/&gt;
 &lt;script type="text/javascript"&gt;SyntaxHighlighter.all();&lt;/script&gt;
+
+&lt;!-- add Lua --&gt;
+&lt;script src="/static/fengari-web.js"&gt;&lt;/script&gt;
 '''
 </t>
 <t tx="amd.20160714232140.1"># 與 file_selector 搭配的取檔程式
@@ -848,7 +848,8 @@ def downloadselect_access_list(files, starti, endi):
         outstring += '''&lt;input type="checkbox" name="filename" value="'''+files[index]+'''"&gt;&lt;a href="#" onclick='window.setLink("/download/?type=files&amp;filename='''+ \
         files[index]+'''",0); return false;'&gt;'''+ \
         files[index]+'''&lt;/a&gt; ('''+str(sizeof_fmt(fileSize))+''')&lt;br /&gt;'''
-    return outstring</t>
+    return outstring
+</t>
 <t tx="amd.20160714232156.1">def loadlist_access_list(files, starti, endi, filedir):
     # different extension files, associated links were provided
     # popup window to view images, video or STL files, other files can be downloaded directly
@@ -910,7 +911,8 @@ a.xhfbfile:hover{
         files[index]+'''&lt;span style="position: absolute; z-index: 4;"&gt;&lt;br /&gt;
         &lt;img src="/download/?type=images&amp;filename='''+ \
         files[index]+'''" width="150px"/&gt;&lt;/span&gt;&lt;/a&gt; ('''+str(sizeof_fmt(fileSize))+''')&lt;br /&gt;'''
-    return outstring</t>
+    return outstring
+</t>
 <t tx="amd.20160714232232.1">def unique(items):
     found = set([])
     keep = []
@@ -1391,7 +1393,8 @@ def download_list():
     directory = render_menu(head, level, page)
 
     return set_css()+"&lt;div class='container'&gt;&lt;nav&gt;"+ \
-        directory+"&lt;/nav&gt;&lt;section&gt;&lt;h1&gt;Download List&lt;/h1&gt;"+outstring+"&lt;br/&gt;&lt;br /&gt;&lt;/body&gt;&lt;/html&gt;"</t>
+        directory+"&lt;/nav&gt;&lt;section&gt;&lt;h1&gt;Download List&lt;/h1&gt;"+outstring+"&lt;br/&gt;&lt;br /&gt;&lt;/body&gt;&lt;/html&gt;"
+</t>
 <t tx="amd.20160715160642.1">@app.route('/image_list', defaults={'edit':1})
 @app.route('/image_list/&lt;path:edit&gt;')
 def image_list(edit, item_per_page=5, page=1, keyword=None):
@@ -1477,7 +1480,8 @@ def image_list(edit, item_per_page=5, page=1, keyword=None):
     directory = render_menu(head, level, page)
 
     return set_css()+"&lt;div class='container'&gt;&lt;nav&gt;"+ \
-        directory+"&lt;/nav&gt;&lt;section&gt;&lt;h1&gt;Image List&lt;/h1&gt;"+outstring+"&lt;br/&gt;&lt;br /&gt;&lt;/body&gt;&lt;/html&gt;"</t>
+        directory+"&lt;/nav&gt;&lt;section&gt;&lt;h1&gt;Image List&lt;/h1&gt;"+outstring+"&lt;br/&gt;&lt;br /&gt;&lt;/body&gt;&lt;/html&gt;"
+</t>
 <t tx="amd.20160715160836.1">@app.route('/load_list')
 def load_list(item_per_page=5, page=1, filedir=None, keyword=None):
     files = os.listdir(data_dir+filedir+"_programs/")
@@ -1581,7 +1585,8 @@ function keywordSearch(){
     #outstring += "&lt;br /&gt;&lt;br /&gt;&lt;input type='submit' value='load'&gt;&lt;input type='reset' value='reset'&gt;&lt;/form&gt;"
     outstring += "&lt;br /&gt;&lt;br /&gt;&lt;/form&gt;"
 
-    return outstring</t>
+    return outstring
+</t>
 <t tx="amd.20160715161018.1">@app.route('/image_delete_file', methods=['POST'])
 def image_delete_file():
     if not isAdmin():
@@ -1634,7 +1639,8 @@ def doDelete():
     directory = render_menu(head, level, page)
 
     return set_css()+"&lt;div class='container'&gt;&lt;nav&gt;"+ \
-        directory+"&lt;/nav&gt;&lt;section&gt;&lt;h1&gt;Download List&lt;/h1&gt;"+outstring+"&lt;br/&gt;&lt;br /&gt;&lt;/body&gt;&lt;/html&gt;"</t>
+        directory+"&lt;/nav&gt;&lt;section&gt;&lt;h1&gt;Download List&lt;/h1&gt;"+outstring+"&lt;br/&gt;&lt;br /&gt;&lt;/body&gt;&lt;/html&gt;"
+</t>
 <t tx="amd.20160715161251.1">@app.route('/image_doDelete', methods=['POST'])
 def image_doDelete():
     if not isAdmin():
@@ -1662,7 +1668,8 @@ def image_doDelete():
     directory = render_menu(head, level, page)
 
     return set_css()+"&lt;div class='container'&gt;&lt;nav&gt;"+ \
-        directory+"&lt;/nav&gt;&lt;section&gt;&lt;h1&gt;Image List&lt;/h1&gt;"+outstring+"&lt;br/&gt;&lt;br /&gt;&lt;/body&gt;&lt;/html&gt;"</t>
+        directory+"&lt;/nav&gt;&lt;section&gt;&lt;h1&gt;Image List&lt;/h1&gt;"+outstring+"&lt;br/&gt;&lt;br /&gt;&lt;/body&gt;&lt;/html&gt;"
+</t>
 <t tx="amd.20160715161352.1">@app.route('/search_form', defaults={'edit': 1})
 @app.route('/search_form/&lt;path:edit&gt;')
 def search_form(edit):
@@ -1747,7 +1754,8 @@ def saveConfig():
 <t tx="amd.20160715161923.1"># use to check directory variable data
 @app.route('/listdir')
 def listdir():
-    return download_dir +","+data_dir</t>
+    return download_dir +","+data_dir
+</t>
 <t tx="amd.20160715162003.1">@app.route('/sitemap', defaults={'edit':1})
 @app.route('/sitemap/&lt;path:edit&gt;')
 def sitemap(edit):

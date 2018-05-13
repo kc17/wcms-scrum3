@@ -546,15 +546,31 @@ if (sim_call_type==sim_childscriptcall_cleanup) then
     simExtCustomUI_destroy(ui)
 end
 </pre>
-<p>&nbsp;</p><h1>網際內容管理</h1>
-<p>這是位於 <a href="https://www.heroku.com">heroku</a> 的 <a href="https://github.com/chiamingyen/cmsimfly">CMSimfly</a> 網站, 由於能在網頁中維護的 <a href="https://www.heroku.com">heroku</a> 網站, 必須與其他雲端儲存系統結合, 而本站是在近端維護後, 提交推送到 <a href="https://www.heroku.com">heroku</a>, 因此目前只能展示&nbsp;<a href="https://git.heroku.com/wcms-scrum3.git">https://git.heroku.com/wcms-scrum3.git</a>&nbsp;倉儲中的網際內容資料, 透過瀏覽器修改的內容, 將會不定期遭 <a href="https://www.heroku.com">heroku</a> 刪除.</p>
-<p>儘管如此, 在近端維護後提交推送到遠端的資料維護模式, 仍可用來呈現網際內容管理相關程式的執行結果.</p>
-<p>例如:</p>
-<p><a href="/w1cda">w1cda 分組程式</a>&nbsp;</p>
-<p><a href="/w7cda">w7cda 列出缺席名單</a></p>
-<p><a href="/w5cdb">w5cdb 列出缺席名單</a></p>
-<p><a href="/w7cdb">w7cdb 列出缺席名單</a></p>
-<p><a href="/vecpw7">vecpw7 列出缺席名單</a></p><h2>使用流程</h2><p><span style="background-color: #ffff00;">登入 heroku</span></p><p>先在近端啟動 CMSimfly, 設法以網際模式協同維護內容後, 以 heroku login 登入 Heroku , 將近端內容提交推送到 Heroku 與同步 github 倉儲.</p><p>設定 proxy 代理主機</p><p>set http_proxy=http://your_proxy_server:port</p><p>heroku login</p><p>git clone or git pull 後以 python&nbsp; app_run.py 啟動, 並以瀏覽器打開 <a>http://localhost:5000</a></p><p><span style="background-color: #ffff00;">平行批次檔指令</span></p><p>由於在近端啟動 CMSimfly 網站時, 希望以 batch 指令同時啟動 Flask 網際程式與近端網頁, 這時需要利用能平行開啟執行的 MParallel 工具, 從&nbsp;<a href="https://github.com/lordmulder/MParallel">https://github.com/lordmulder/MParallel&nbsp;</a>&nbsp;下載 mparallet.exe 後, 放入可攜系統的 y:\ 目錄, 建立 run.bat 如下:</p><pre class="brush:ps;auto-links:false;toolbar:false" contenteditable="false">MParallel.exe --count=2 python app_run.py : C:\Program Files (x86)\Google\Chrome\Application\chrome.exe "http://localhost:5000"</pre><p>啟動後便可同時執行近端 app_run.py 與 chrome 網頁開啟.</p><p><span style="background-color: #ffff00;">在近端維護網站內容</span></p><p>CMSimfly&nbsp; 在區網或廣域網路中執行, 登入後可以維護網站內容</p><p><span style="background-color: #ffff00;">提交推送網站版本</span></p><p>提交推送到 Heroku</p><p>git add .</p><p>git commit -m "提交新版本"</p><p>git push</p><p><span style="background-color: #ffff00;">同步提交推送到 Github</span></p><p>先設定 git remote add 到對應的 github 空倉儲</p><p>以下將 git url 在此倉儲下, 將 remote add 的對應命名為 github</p><p>git remote add github <a href="https://github.com/mdecourse/wcms-scrum3.git">https://github.com/mdecourse/wcms-scrum3.git</a></p><p>接著再將版本推送到 wcm-scrum3</p><p>git push github</p><h2>與 Google 表單結合</h2>
+<p>&nbsp;</p><h1>網際內容管理</h1><p>這是位於 <a href="https://www.heroku.com">heroku</a> 的 <a href="https://github.com/chiamingyen/cmsimfly">CMSimfly</a> 網站, 由於能在網頁中維護的 <a href="https://www.heroku.com">heroku</a> 網站, 必須與其他雲端儲存系統結合, 而本站是在近端維護後, 提交推送到 <a href="https://www.heroku.com">heroku</a>, 因此目前只能展示&nbsp;<a href="https://git.heroku.com/wcms-scrum3.git">https://git.heroku.com/wcms-scrum3.git</a>&nbsp;倉儲中的網際內容資料, 透過瀏覽器修改的內容, 將會不定期遭 <a href="https://www.heroku.com">heroku</a> 刪除.</p><p>儘管如此, 在近端維護後提交推送到遠端的資料維護模式, 仍可用來呈現網際內容管理相關程式的執行結果.</p><p>例如:</p><p><a href="/w1cda">w1cda 分組程式</a>&nbsp;</p><p><a href="/w7cda">w7cda 列出缺席名單</a></p><p><a href="/w5cdb">w5cdb 列出缺席名單</a></p><p><a href="/w7cdb">w7cdb 列出缺席名單</a></p><p><a href="/vecpw7">vecpw7 列出缺席名單</a></p><!-- add Lua --><pre class="brush:html;auto-links:false;toolbar:false" contenteditable="false">tinymce4 設定: extended_valid_elements:"script[language|type|src]", 允許在編輯器中納入 script 標註 </pre><p>&nbsp;</p><pre class="brush:html;auto-links:false;toolbar:false" contenteditable="false">將 tinymce4 設定格式從 xhtml 改為 html, 可以避開 cdata 插入問題:element_format : "html",</pre><p id="target_position">&nbsp;</p><p>列出上述內容的 Lua 程式碼如下:</p><pre class="brush:lua;auto-links:false;toolbar:false" contenteditable="false">-- &lt;script src="/static/fengari-web.js"&gt;&lt;/script&gt;-- &lt;script type="application/lua"&gt;local js = require "js"local window = js.globaloutput = ""for i=1, 5 do    output = output .. tostring(i).. ": hello Lua<br>"endwindow.document:getElementById("here").innerHTML=outputwindow.document:getElementById("here1").innerHTML="here1"-- 選定插入字串位置d1 = window.document:getElementById('target_position')-- 插在標註起始之前d1:insertAdjacentHTML('beforeBegin', 'hello, Lua')-- &lt;/script&gt;</pre><p id="here1">&nbsp;</p><p id="here">&nbsp;</p><!-- 導入外部的 ext1.lua 程式內容 --><p><script type="application/lua">local js = require "js"local window = js.globaloutput = ""for i=1, 5 do    output = output .. tostring(i).. ": hello Lua<br />"endwindow.document:getElementById("here").innerHTML=outputwindow.document:getElementById("here1").innerHTML="here1"-- 選定插入字串位置d1 = window.document:getElementById('target_position')-- 插在標註起始之前d1:insertAdjacentHTML('beforeBegin', 'hello, Lua')</script></p><h2>使用流程</h2>
+<p><span style="background-color: #ffff00;">登入 heroku</span></p>
+<p>先在近端啟動 CMSimfly, 設法以網際模式協同維護內容後, 以 heroku login 登入 Heroku , 將近端內容提交推送到 Heroku 與同步 github 倉儲.</p>
+<p>設定 proxy 代理主機</p>
+<p>set http_proxy=http://your_proxy_server:port</p>
+<p>heroku login</p>
+<p>git clone or git pull 後以 python&nbsp; app_run.py 啟動, 並以瀏覽器打開 <a>http://localhost:5000</a></p>
+<p><span style="background-color: #ffff00;">平行批次檔指令</span></p>
+<p>由於在近端啟動 CMSimfly 網站時, 希望以 batch 指令同時啟動 Flask 網際程式與近端網頁, 這時需要利用能平行開啟執行的 MParallel 工具, 從&nbsp;<a href="https://github.com/lordmulder/MParallel">https://github.com/lordmulder/MParallel&nbsp;</a>&nbsp;下載 mparallet.exe 後, 放入可攜系統的 y:\ 目錄, 建立 run.bat 如下:</p>
+<pre class="brush:ps;auto-links:false;toolbar:false" contenteditable="false">MParallel.exe --count=2 python app_run.py : C:\Program Files (x86)\Google\Chrome\Application\chrome.exe "http://localhost:5000"
+</pre>
+<p>啟動後便可同時執行近端 app_run.py 與 chrome 網頁開啟.</p>
+<p><span style="background-color: #ffff00;">在近端維護網站內容</span></p>
+<p>CMSimfly&nbsp; 在區網或廣域網路中執行, 登入後可以維護網站內容</p>
+<p><span style="background-color: #ffff00;">提交推送網站版本</span></p>
+<p>提交推送到 Heroku</p>
+<p>git add .</p>
+<p>git commit -m "提交新版本"</p>
+<p>git push</p>
+<p><span style="background-color: #ffff00;">同步提交推送到 Github</span></p>
+<p>先設定 git remote add 到對應的 github 空倉儲</p>
+<p>以下將 git url 在此倉儲下, 將 remote add 的對應命名為 github</p>
+<p>git remote add github <a href="https://github.com/mdecourse/wcms-scrum3.git">https://github.com/mdecourse/wcms-scrum3.git</a></p>
+<p>接著再將版本推送到 wcm-scrum3</p>
+<p>git push github</p><h2>與 Google 表單結合</h2>
 <p>Google forms:&nbsp;<a href="https://www.google.com/intl/zh-TW_tw/forms/about/">https://www.google.com/intl/zh-TW_tw/forms/about/</a>&nbsp;</p>
 <p>網際內容管理與 <a href="https://docs.google.com/forms">Google 表單</a>結合, 可以直接在雲端上建立問卷, 由使用者填寫後, 轉為資料檔後, 經由雲端程式解讀後, 將結果以網頁顯示.</p>
 <p>WCMS 課程第七週分組作業:</p>

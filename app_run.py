@@ -312,8 +312,9 @@ def editorhead():
 tinymce.init({
   selector: "textarea",
   height: 500,
-  element_format : "xhtml",
+  element_format : "html",
   language : "en",
+  extended_valid_elements:"script[language|type|src]",
   plugins: [
     'advlist autolink lists link image charmap print preview hr anchor pagebreak',
     'searchreplace wordcount visualblocks visualchars code fullscreen',
@@ -954,6 +955,7 @@ init_mathjax = function() {
 }
 init_mathjax();
 </script>
+<script src="/static/fengari-web.js"></script>
 '''
 def set_css():
     outstring = '''<!doctype html>

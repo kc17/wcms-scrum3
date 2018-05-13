@@ -929,6 +929,9 @@ def syntaxhighlight():
 <script type="text/javascript" src="/static/syntaxhighlighter/shBrushCSharp.js"></script>
 <link type="text/css" rel="stylesheet" href="/static/syntaxhighlighter/css/shCoreDefault.css"/>
 <script type="text/javascript">SyntaxHighlighter.all();</script>
+
+<!-- add Lua -->
+<script src="/static/fengari-web.js"></script>
 '''
 def set_css():
     outstring = '''<!doctype html>
