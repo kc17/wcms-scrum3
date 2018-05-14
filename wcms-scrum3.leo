@@ -328,7 +328,8 @@ tinymce.init({
   height: 500,
   element_format : "html",
   language : "en",
-  extended_valid_elements:"script[language|type|src]",
+  valid_elements : '*[*]',
+  extended_valid_elements: "script[language|type|src]",
   plugins: [
     'advlist autolink lists link image charmap print preview hr anchor pagebreak',
     'searchreplace wordcount visualblocks visualchars code fullscreen',
