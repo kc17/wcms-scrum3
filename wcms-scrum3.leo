@@ -13,7 +13,7 @@
 <v t="leo.20180328195852.2"><vh>@data qt-gui-plugin-style-sheet</vh></v>
 <v t="leo.20180328195852.3"><vh>@string initial_split_orientation = horizontal</vh></v>
 </v>
-<v t="leo.20180408153151.1" a="E"><vh>@clean app_run.py</vh>
+<v t="leo.20180408153151.1"><vh>@clean app_run.py</vh>
 <v t="leo.20180408153205.1"><vh>Declarations</vh></v>
 <v t="leo.20180408153205.2"><vh>index</vh></v>
 <v t="leo.20180408153205.3"><vh>download</vh></v>
@@ -76,6 +76,7 @@
 <v t="leo.20180411082630.1"><vh>w7cdb</vh></v>
 <v t="leo.20180413185554.1"><vh>w7vecp</vh></v>
 <v t="leo.20180408155117.1"><vh>lua</vh></v>
+<v t="leo.20180601085151.1"><vh>lua2</vh></v>
 </v>
 <v t="leo.20180331151703.1"><vh>@edit app_run-orig.py</vh></v>
 <v t="leo.20180328201626.1"><vh>@edit cd_w5b.txt</vh></v>
@@ -83,6 +84,25 @@
 <v t="leo.20180331150446.1"><vh>@edit wsgi.py</vh></v>
 <v t="leo.20180331151732.1"><vh>@edit flaskapp.py</vh></v>
 <v t="leo.20180408160628.1"><vh>@edit lua.html</vh></v>
+<v t="leo.20180601085134.1"><vh>@edit lua2.html</vh></v>
+<v t="leo.20180601085242.1" a="E"><vh>@path static</vh>
+<v t="leo.20180601085250.1"><vh>@edit editor.lua</vh></v>
+<v t="leo.20180601085324.1"><vh>@edit ext1.lua</vh></v>
+<v t="leo.20180601085421.1"><vh>@edit ext2.lua</vh></v>
+<v t="leo.20180601090250.1" a="E"><vh>@path ext</vh>
+<v t="leo.20180601090257.1"><vh>@edit fun1.lua</vh></v>
+<v t="leo.20180601090337.1"><vh>@edit hello.lua</vh></v>
+<v t="leo.20180601090713.1"><vh>@edit guess1.lua</vh></v>
+<v t="leo.20180601090739.1"><vh>@edit guess2.lua</vh></v>
+<v t="leo.20180601091433.1"><vh>@edit scope1.lua</vh></v>
+<v t="leo.20180601091526.1"><vh>@edit function1.lua</vh></v>
+<v t="leo.20180601091619.1"><vh>@edit star1.lua</vh></v>
+<v t="leo.20180601091725.1"><vh>@edit flag.lua</vh></v>
+<v t="leo.20180601091821.1"><vh>@edit cango1.lua</vh></v>
+<v t="leo.20180601091915.1"><vh>@edit oop1.lua</vh></v>
+<v t="leo.20180601091959.1"><vh>@edit ga_onemax.lua</vh></v>
+</v>
+</v>
 </vnodes>
 <tnodes>
 <t tx="leo.20180328195852.1"></t>
@@ -1915,5 +1935,15 @@ def vecpw7():
     return output
 
 </t>
+<t tx="leo.20180601085151.1">@app.route('/lua2')
+def lua2():
+    output = ""
+    with open("lua2.html", "r", encoding="utf-8") as fh:
+        lines = fh.readlines()
+        for i in range(len(lines)):
+            output+=lines[i]
+    return output</t>
+<t tx="leo.20180601085242.1"></t>
+<t tx="leo.20180601090250.1"></t>
 </tnodes>
 </leo_file>

@@ -1677,6 +1677,15 @@ def lua():
             output+=lines[i]
     return output
 
+@app.route('/lua2')
+def lua2():
+    output = ""
+    with open("lua2.html", "r", encoding="utf-8") as fh:
+        lines = fh.readlines()
+        for i in range(len(lines)):
+            output+=lines[i]
+    return output
+
 if __name__ == "__main__":
     app.run(debug=True)
 
