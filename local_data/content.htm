@@ -989,7 +989,344 @@ for k, v in pairs(res) do
     end
 end
 </pre>
-<p></p><h2>Lua gear</h2><p>正齒輪繪圖</p><p><canvas id="canvas" width="600" height="600"></canvas></p><p><script type="application/lua">-- 導入 "js" 模組local js = require "js"-- global 就是 javascript 的 windowlocal global = js.globallocal document = global.document-- html 檔案中 canvas　id 設為 "canvas"local canvas = document:getElementById("canvas")-- 將 ctx 設為 canvas 2d 繪圖畫布變數local ctx = canvas:getContext("2d")-- 屬性呼叫使用 . 而方法呼叫使用 :-- 設定填圖顏色--ctx.fillStyle = "rgb(200,0,0)"-- 設定畫筆顏色--ctx.strokeStyle = "rgb(0,0,200)"-- 乘上 deg 可轉為徑度單位deg = math.pi / 180function line(ctx, x1, y1, x2, y2, width, fill)    width = width or 1    fill = fill or "rgb(200, 0, 0)"        ctx:beginPath()    ctx.lineWidth = width    ctx:moveTo(x1, y1)    ctx:lineTo(x2, y2)    ctx:closePath()    -- 畫線顏色由外部呼叫設定, 若未設定則用內定的紅色    ctx.strokeStyle = fill    ctx:stroke()end-- 建立 gear 繪圖物件local gear = {}gear.__index = gearfunction gear.new(ctx, midx, midy, rp, n, pa, color)    local self = setmetatable({}, gear)    self.ctx = ctx    self.midx = midx    self.midy = midy    self.rp = rp    self.n = n or 20    self.pa = pa or 20    -- 建立物件時可以設定畫線顏色, 若未宣各則使用藍色畫線    self.color = color or "rgb(0,0,200)"    return self-- function endendfunction gear.plot(self)    -- 齒輪漸開線分成 15 線段繪製    imax = 15    -- 在輸入的畫布上繪製直線, 由圓心到節圓 y 軸頂點畫一直線    -- 在此宣告畫直線顏色為紅色    line(self.ctx, self.midx, self.midy, self.midx, self.midy-self.rp, 2, "rgb(200,0,0)")    -- 畫出 rp 圓, 畫圓函式尚未定義    -- create_oval(midx-rp, midy-rp, midx+rp, midy+rp, width=2)    -- a 為模數 (代表公制中齒的大小), 模數為節圓直徑(稱為節徑)除以齒數    -- 模數也就是齒冠大小    a=2*self.rp/self.n    -- d 為齒根大小, 為模數的 1.157 或 1.25倍, 這裡採 1.25 倍    d=2.5*self.rp/self.n    -- ra 為齒輪的外圍半徑    ra=self.rp+a    -- 畫出 ra 圓, 畫圓函式尚未定義    -- create_oval(midx-ra, midy-ra, midx+ra, midy+ra, width=1)    --  rb 則為齒輪的基圓半徑    -- 基圓為漸開線長齒之基準圓    rb=self.rp*math.cos(self.pa*deg)    -- 畫出 rb 圓 (基圓), 畫圓函式尚未定義    -- create_oval(midx-rb, midy-rb, midx+rb, midy+rb, width=1)    -- rd 為齒根圓半徑    rd=self.rp-d    -- 當 rd 大於 rb 時, 漸開線並非畫至 rb, 而是 rd    -- 畫出 rd 圓 (齒根圓), 畫圓函式尚未定義    -- create_oval(midx-rd, midy-rd, midx+rd, midy+rd, width=1)    -- dr 則為基圓到齒頂圓半徑分成 imax 段後的每段半徑增量大小    -- 將圓弧分成 imax 段來繪製漸開線    -- 當 rd 大於 rb 時, 漸開線並非畫至 rb, 而是 rd    if rd>rb then        dr = (ra-rd)/imax    else        dr=(ra-rb)/imax    -- if end    end    -- tan(pa*deg)-pa*deg 為漸開線函數    sigma=math.pi/(2*self.n)+math.tan(self.pa*deg)-self.pa*deg    for j=0,self.n-1 do        ang=-2.*j*math.pi/self.n+sigma        ang2=2.*j*math.pi/self.n+sigma        lxd=self.midx+rd*math.sin(ang2-2.*math.pi/self.n)        lyd=self.midy-rd*math.cos(ang2-2.*math.pi/self.n)        for i=0, imax do            -- 當 rd 大於 rb 時, 漸開線並非畫至 rb, 而是 rd            if rd>rb then                r=rd+i*dr            else                r=rb+i*dr            end            theta=math.sqrt((r*r)/(rb*rb)-1.)            alpha=theta-math.atan(theta)            xpt=r*math.sin(alpha-ang)            ypt=r*math.cos(alpha-ang)            xd=rd*math.sin(-ang)            yd=rd*math.cos(-ang)            -- i=0 時, 繪線起點由齒根圓上的點, 作為起點            if(i==0) then                last_x = self.midx+xd                last_y = self.midy-yd            end            -- 由左側齒根圓作為起點, 除第一點 (xd,yd) 齒根圓上的起點外, 其餘的 (xpt,ypt)則為漸開線上的分段點            -- 宣告畫線顏色為 self.color, 即建立物件時所宣告的初始畫線顏色            line(self.ctx, (self.midx+xpt),(self.midy-ypt),(last_x),(last_y), 2, self.color)            -- 最後一點, 則為齒頂圓            if(i==imax) then                lfx=self.midx+xpt                lfy=self.midy-ypt            end            last_x = self.midx+xpt            last_y = self.midy-ypt        -- for end        end        -- the line from last end of dedendum point to the recent        -- end of dedendum point        -- lxd 為齒根圓上的左側 x 座標, lyd 則為 y 座標        -- 下列為齒根圓上用來近似圓弧的直線        -- 宣告畫線顏色為 self.color, 即建立物件時所宣告的初始畫線顏色        line(self.ctx, (lxd),(lyd),(self.midx+xd),(self.midy-yd), 2, self.color)        for i=0, imax do            -- 當 rd 大於 rb 時, 漸開線並非畫至 rb, 而是 rd            if rd>rb then                r=rd+i*dr            else                r=rb+i*dr            end            theta=math.sqrt((r*r)/(rb*rb)-1.)            alpha=theta-math.atan(theta)            xpt=r*math.sin(ang2-alpha)            ypt=r*math.cos(ang2-alpha)            xd=rd*math.sin(ang2)            yd=rd*math.cos(ang2)            -- i=0 時, 繪線起點由齒根圓上的點, 作為起點            if(i==0) then                last_x = self.midx+xd                last_y = self.midy-yd            -- if end            end            -- 由右側齒根圓作為起點, 除第一點 (xd,yd) 齒根圓上的起點外, 其餘的 (xpt,ypt)則為漸開線上的分段點            -- 宣告畫線顏色為 self.color, 即建立物件時所宣告的初始畫線顏色            line(self.ctx, (self.midx+xpt),(self.midy-ypt),(last_x),(last_y), 2, self.color)            -- 最後一點, 則為齒頂圓            if(i==imax) then                rfx=self.midx+xpt                rfy=self.midy-ypt            -- if end            end            last_x = self.midx+xpt            last_y = self.midy-ypt        -- for end        end        -- lfx 為齒頂圓上的左側 x 座標, lfy 則為 y 座標        -- 下列為齒頂圓上用來近似圓弧的直線        -- 宣告畫線顏色為 self.color, 即建立物件時所宣告的初始畫線顏色        line(self.ctx, lfx,lfy,rfx,rfy, 2, self.color)    -- for end    end--function endend-- 宣告以藍色畫線gear1 = gear.new(ctx, 300, 300, 150, 25, 20, "rgb(0,0,200)")gear1:plot()</script>Cango 繪圖<script type="text/javascript" src="/static/Cango-13v08-min.js"></script><script type="text/javascript" src="/static/CangoAxes-4v01-min.js"></script><script type="text/javascript" src="/static/gearUtils-05.js"></script><canvas id="cango_gear" width="800" height="750"></canvas><script type="application/lua">-- 導入 "js" 模組local js = require "js"-- global 就是 javascript 的 windowlocal window = js.globallocal Array = js.global.Arraycanvas = window.document:getElementById("cango_gear")-- 將 lua table 轉為 new JavaScript Object 的方法-- e.g. Object{mykey="myvalue"}local function Object(t)    local o = js.new(js.global.Object)    for k, v in pairs(t) do        assert(type(k) == "string" or js.typeof(k) == "symbol", "JavaScript only has string and symbol keys")        o[k] = v    end    return oend-- javascript constructorcgo = js.new(window.Cango, "cango_gear")--local path = js.new(window.Path)local shape = js.new(window.Shape)-- Javascript 變數shapedefs = window.shapeDefs-- 角度轉為徑度deg = math.pi/180function cangoGear(m, n, pa)    m = m or 3 -- 模數    n = n or 20 -- 齒數    pa = pa or 20 -- 壓力角    -- 列出利用 Cango 程式庫所建立的齒型數列    -- local creategeartooth = js.new(window.createGearTooth, m, n, pa)    -- pr 為節圓半徑    pr = n*m/2 -- gear Pitch radius    -- m 為模數, n 為齒數, pa 為壓力角, 必須在建立新物件時輸入對應的輸入變數值    -- local creategeartooth = js.new(window.createGearTooth, 3, 20, 20)    data = js.new(window.createGearTooth, m, n, pa)    --print(creategeartooth)    --local path = js.new(window.Path)    gearTooth = js.new(window.Path, data, Object{      fillColor= "#ddd0dd",      border= true,      strokeColor= "#606060" })    gearTooth:rotate(180/n) -- rotate gear 1/2 tooth to mesh    -- 單齒的齒形資料經過旋轉後, 將資料複製到 gear 物件中    gear = gearTooth:dup()    -- gear 為單一齒的輪廓資料    --cgo:render(gear)    -- 利用單齒輪廓旋轉, 產生整個正齒輪外形    for i = 1, n-1 do        -- 將 gearTooth 中的資料複製到 newTooth        newTooth = gearTooth:dup()        -- 配合迴圈, newTooth 的齒形資料進行旋轉, 然後利用 appendPath 方法, 將資料併入 gear        newTooth:rotate(360*i/n)        gear:appendPath(newTooth)    end    -- 建立軸孔    -- add axle hole, hr 為 hole radius    hr = 0.6*pr -- diameter of gear shaft    shaft = js.new(window.Path, shapedefs:circle(hr))    gear:appendPath(shaft) -- retain the 'moveTo' command for shaft sub path    -- setup the animation    -- backlash (mm)    bklsh = 0.04*m    -- centre shift to make backlash    dC = bklsh/(2*math.tan(math.pi*pa/180))    -- np 為小齒輪齒數    np = 13    -- gear ratio    gr = n/np    -- 必須將 lua 的 table 轉為 javascript array 資料, 因為 lua 沒有數列資料型別    t_js_array = js.global:Array()    t_js_array:splice(0, 0, table.unpack({0, 360}))           gearConfig = Object{cx=-pr, cy=0, degs=t_js_array}    -- gr*0.666 rpm    --pinionConfig = {'cx':pr+dC, 'cy':0, 'degs':[0, -gr*360]}    -- 0.666 rpm    -- 目前並非以 tweener 執行動畫    --twnr = tweener(0, 90000, "loop")    return gearend-- 設定兩齒齒數n = 17n2 = 11n3 = 17reduced_ratio = 0.5-- 使用 80% 的畫布寬度m = 0.8*(canvas.width)/((n+n2+n3)*reduced_ratio)-- 設定共同的壓力角pa = 25-- n 齒輪的節圓半徑pr = n*m/2-- n2 齒輪的節圓半徑pr2 = n2*m/2pr3 = n3*m/2-- 建立 geargear = cangoGear(m, n, pa)cx = (canvas.width)/2cy = (canvas.height)/2-- render 繪出靜態正齒輪輪廓--cgo.render(gear)-- 利用 gear 資料複製一份, 命名為 gear1--gear1 = gear.dup()-- 建立 gear1gear1 = cangoGear(m, n2, pa)gear2 = cangoGear(m, n3, pa)-- 需要直接利用 javascript 的 set_Intervaldeg = math.pi/180rotate_speed = 6*degfunction draw()    cgo:clearCanvas()    -- 在特定位置, 以特定 scale, 特定 degs 執行 render    -- 設定囓合點在畫布正中央    -- 囓合點往左偏 pr/2 即為 n 齒輪的圓心 x 座標    --cgo.render(gear, {'x':cx-pr*reduced_ratio, 'y':cy, 'scl':reduced_ratio, 'degs':0})    gear.transform:translate(cx-(pr+pr2)*reduced_ratio, cy)    gear.transform:scale(reduced_ratio)    gear.transform:rotate(0)    gear:rotate(rotate_speed)    cgo:render(gear)        --cgo.render(gear, {'x':cx-(pr+pr2)*reduced_ratio, 'y':cy, 'scl':0.5, 'degs':0})    -- 根據兩齒輪齒數比決定 n2 齒輪轉速        gear1.transform:translate(cx, cy)    gear1.transform:scale(reduced_ratio)    gear1.transform:rotate(180+(360/n2/2))    gear1:rotate(-(rotate_speed)*n/n2)    cgo:render(gear1)        gear2.transform:translate(cx+(pr2+pr3)*reduced_ratio, cy)    gear2.transform:scale(reduced_ratio)    gear2.transform:rotate(180+(360/n3/2)+(180+(360/n2/2))*n2/n3)    gear2:rotate((rotate_speed*n/n2)*(n2/n3))    cgo:render(gear2)        -- 囓合點往右偏 pr2/2 即為 n2 齒輪的圓心 x 座標, 且 n2 齒轉 180 加一齒角度後囓合    --cgo.render(gear1, {'x':cx, 'y':cy, 'scl':reduced_ratio, 'degs':180+(360/n2/2)})    --cgo.render(gear2, {'x':cx+(pr2+pr3)*reduced_ratio, 'y':cy, 'scl':reduced_ratio, 'degs':180+(360/n3/2)+(180+(360/n2/2))*n2/n3})end-- 目前只能正確繪製靜態嚙合, 動態旋轉仍有問題draw()--window:setInterval(draw, 2)</script></p><h1>Brython</h1>
+<p></p><h2>Lua2</h2><p><a href="/lua2">/lua2</a></p><p><a href="/lua2">/lua2</a> 與 <a href="/lua">/lua</a> 的程式架構類似, 但原先的 <a href="/lua">/lua</a>, 採用 lua.html, editor.lua 與 ex1.lua, 主要透過 URL 取得要載入 Lua 解譯器的函式內容, 所有的函式都必須寫在 /static/ext1.lua 中, 但是 <a href="/lua2">/lua2</a> 則修改 lua2.html&nbsp; 中的 lua 程式, 讓所有可呼叫程式碼存在 /static/ext 目錄中, 然後依照所呼叫的 URL&nbsp; filename 載入對應的 .lua 程式碼, 目前仍需從函式的呼叫 return 所需的程式碼, 之後再設法改為可直接導入 .lua 中的程式碼內容, 無需 return.</p><p>lua2.html 內容:</p><pre class="brush:html;auto-links:false;toolbar:false" contenteditable="false">@language html&lt;!DOCTYPE html&gt;&lt;html&gt;    &lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"&gt;&lt;link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"&gt;&lt;link rel="stylesheet" href="/static/style.css"&gt;&lt;title&gt;How to program in Lua&lt;/title&gt;&lt;script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"&gt;&lt;/script&gt;&lt;!-- 導入 FileSaver 與 filereader --&gt;&lt;script type="text/javascript" src="/static/ace/FileSaver.min.js"&gt;&lt;/script&gt;&lt;script type="text/javascript" src="/static/ace/filereader.js"&gt;&lt;/script&gt;&lt;script src="/static/fengari-web.js"&gt;&lt;/script&gt;&lt;!-- 導入 Cango library --&gt;&lt;script type="text/javascript" src="/static/Cango-13v08-min.js"&gt;&lt;/script&gt;&lt;script type="text/javascript" src="/static/CangoAxes-4v01-min.js"&gt;&lt;/script&gt;&lt;script type="text/javascript"&gt;function doSave(storage_id, filename){    var blob = new Blob([localStorage[storage_id]], {type: "text/plain;charset=utf-8"});    filename = document.getElementById(filename).value;    //source_code = window.localStorage.getItem("lua_src_id");    //document.getElementById("editor_field").value = source_code;    saveAs(blob, filename+".lua");}// 用來 parse window.location.href 中的變數function parse_query_string(query) {  var vars = query.split("&amp;");  var query_string = {};  for (var i = 0; i &lt; vars.length; i++) {    var pair = vars[i].split("=");    // If first entry with this name    if (typeof query_string[pair[0]] === "undefined") {      query_string[pair[0]] = decodeURIComponent(pair[1]);      // If second entry with this name    } else if (typeof query_string[pair[0]] === "string") {      var arr = [query_string[pair[0]], decodeURIComponent(pair[1])];      query_string[pair[0]] = arr;      // If third or later entry with this name    } else {      query_string[pair[0]].push(decodeURIComponent(pair[1]));    }  }  return query_string;}&lt;/script&gt;&lt;/head&gt;    &lt;body&gt;        &lt;h1 class="center"&gt;Hello Lua!&lt;/h1&gt;                &lt;div class="repl-container"&gt;            &lt;div class="row editor-container"&gt;                &lt;div id="editor_field" class="col-sm editor"&gt;&lt;/div&gt;                &lt;div class="col-sm output"&gt;&lt;/div&gt;            &lt;/div&gt;            &lt;div class="row"&gt;                &lt;button type="button" class="btn btn-primary btn-execute"&gt;Execute&lt;/button&gt;                &nbsp;&nbsp;                &lt;button onclick="window.clearCanvas()"&gt;清除畫面&lt;/button&gt;                &nbsp;&lt;a href="?filename=hello"&gt;hello&lt;/a&gt;&nbsp;|                &nbsp;&lt;a href="?filename=fun1"&gt;draw&lt;/a&gt;&nbsp;|                &nbsp;&lt;a href="?filename=guess1"&gt;guess1&lt;/a&gt;&nbsp;|                &nbsp;&lt;a href="?filename=guess2"&gt;guess2&lt;/a&gt;&nbsp;|                &nbsp;&lt;a href="?filename=scope1"&gt;scope&lt;/a&gt;&nbsp;|                &nbsp;&lt;a href="?filename=function1"&gt;function&lt;/a&gt;&nbsp;|                &nbsp;&lt;a href="?filename=star1"&gt;star&lt;/a&gt;&nbsp;|                &nbsp;&lt;a href="?filename=flag"&gt;flag&lt;/a&gt;&nbsp;|                &nbsp;&lt;a href="?filename=cango1"&gt;cango1&lt;/a&gt;&nbsp;|                &nbsp;&lt;a href="?filename=oop1"&gt;oop1&lt;/a&gt;&nbsp;|                &nbsp;&lt;a href="?filename=ga_onemax"&gt;ga&lt;/a&gt;&nbsp;|                &nbsp;&lt;a href="/"&gt;回 CMsimfly&lt;/a&gt;            &lt;/div&gt;    &lt;form&gt;    (請注意: 程式執行後才可以存檔!) &lt;br /&gt;    &lt;label&gt;Filename: &lt;input type="text" id="lua_filename" placeholder="input file name"/&gt;.lua&lt;/label&gt;    &lt;input type="submit" id="save" value="Save" onclick="doSave('lua_src_id', 'lua_filename');"/&gt;    &lt;/form&gt;      &lt;/div&gt;&lt;script src="/static/editor.lua" type="application/lua" async&gt;&lt;/script&gt;&lt;!-- 以下的 lua 從 localStorage 取出原始碼, 放入 editor_field --&gt;&lt;!-- 導入外部的 ext1.lua 程式內容 --&gt;&lt;!-- 改寫為讀取 ext 目錄中的 .lua 程式碼 --&gt;&lt;!-- 程式檔案名稱必須與內部函式名稱相同 --&gt;&lt;script type="application/lua"&gt;js = require "js"storage = js.global.localStoragesource_code = storage:getItem("lua_src_id")-- js.global.location.search 為 "?filename=fun1", 然後用 sub(2, -1) 取第 2 到最後一個字元, 表示去除 "?"-- 之後再由 js.global:parse_query_string() javascript 函式的呼叫解讀出 filename 變數的值-- 最後再根據 filename 的字串值, 作為呼叫 global namespace 中的函數名稱, 也就是 _G[example]()-- 就可以在 localStorage 為空時, 透過瀏覽器的 reload 載入 ext2.lua 中的各個範例程式parse_qs = js.global:parse_query_string(js.global.location.search:sub(2, -1))if parse_qs.filename == nil then    example = "fun1"else    --js.global:prompt("即將載入範例")    example = parse_qs.filenameendpackage.path = "/static/ext/"..example..".lua"require(example)-- 改為從 URL 中取 filename 名稱載入編輯器, 若無 filename 則載入 default 的 fun1()--if source_code ~= "" then    --js.global.document:getElementById("editor_field").textContent = source_code--else    js.global.document:getElementById("editor_field").textContent = _G[example]()--end-- js.global:prompt("testing")-- js.global:prompt(parse_qs.filename)function js.global.clearCanvas()    local canvas = js.global.document:getElementById("canvas")    local ctx = canvas:getContext("2d")    ctx:clearRect(0, 0, canvas.width, canvas.height)end&lt;/script&gt;&lt;script src="/static/ace/ace.js"&gt;&lt;/script&gt;&lt;script src="/static/ace/mode-lua.js"&gt;&lt;/script&gt;&lt;script src="/static/editor.js"&gt;&lt;/script&gt;&lt;br /&gt;&lt;br /&gt;&lt;canvas id="canvas" width="600" height="600"&gt;&lt;/canvas&gt;    &lt;/body&gt;&lt;/html&gt;</pre><p></p><h2>Lua gear</h2>
+<p>正齒輪繪圖</p>
+<p><canvas id="canvas" width="600" height="600"></canvas></p>
+<p>
+<script type="application/lua">
+-- 導入 "js" 模組
+local js = require "js"
+-- global 就是 javascript 的 window
+local global = js.global
+local document = global.document
+-- html 檔案中 canvas　id 設為 "canvas"
+local canvas = document:getElementById("canvas")
+-- 將 ctx 設為 canvas 2d 繪圖畫布變數
+local ctx = canvas:getContext("2d")
+
+-- 屬性呼叫使用 . 而方法呼叫使用 :
+-- 設定填圖顏色
+--ctx.fillStyle = "rgb(200,0,0)"
+-- 設定畫筆顏色
+--ctx.strokeStyle = "rgb(0,0,200)"
+
+-- 乘上 deg 可轉為徑度單位
+deg = math.pi / 180
+
+function line(ctx, x1, y1, x2, y2, width, fill)
+    width = width or 1
+    fill = fill or "rgb(200, 0, 0)"
+    
+    ctx:beginPath()
+    ctx.lineWidth = width
+    ctx:moveTo(x1, y1)
+    ctx:lineTo(x2, y2)
+    ctx:closePath()
+    -- 畫線顏色由外部呼叫設定, 若未設定則用內定的紅色
+    ctx.strokeStyle = fill
+    ctx:stroke()
+
+end
+
+-- 建立 gear 繪圖物件
+local gear = {}
+gear.__index = gear
+
+function gear.new(ctx, midx, midy, rp, n, pa, color)
+    local self = setmetatable({}, gear)
+    self.ctx = ctx
+    self.midx = midx
+    self.midy = midy
+    self.rp = rp
+    self.n = n or 20
+    self.pa = pa or 20
+    -- 建立物件時可以設定畫線顏色, 若未宣各則使用藍色畫線
+    self.color = color or "rgb(0,0,200)"
+    return self
+-- function end
+end
+
+function gear.plot(self)
+    -- 齒輪漸開線分成 15 線段繪製
+    imax = 15
+    -- 在輸入的畫布上繪製直線, 由圓心到節圓 y 軸頂點畫一直線
+    -- 在此宣告畫直線顏色為紅色
+    line(self.ctx, self.midx, self.midy, self.midx, self.midy-self.rp, 2, "rgb(200,0,0)")
+    -- 畫出 rp 圓, 畫圓函式尚未定義
+    -- create_oval(midx-rp, midy-rp, midx+rp, midy+rp, width=2)
+    -- a 為模數 (代表公制中齒的大小), 模數為節圓直徑(稱為節徑)除以齒數
+    -- 模數也就是齒冠大小
+    a=2*self.rp/self.n
+    -- d 為齒根大小, 為模數的 1.157 或 1.25倍, 這裡採 1.25 倍
+    d=2.5*self.rp/self.n
+    -- ra 為齒輪的外圍半徑
+    ra=self.rp+a
+    -- 畫出 ra 圓, 畫圓函式尚未定義
+    -- create_oval(midx-ra, midy-ra, midx+ra, midy+ra, width=1)
+    --  rb 則為齒輪的基圓半徑
+    -- 基圓為漸開線長齒之基準圓
+    rb=self.rp*math.cos(self.pa*deg)
+    -- 畫出 rb 圓 (基圓), 畫圓函式尚未定義
+    -- create_oval(midx-rb, midy-rb, midx+rb, midy+rb, width=1)
+    -- rd 為齒根圓半徑
+    rd=self.rp-d
+    -- 當 rd 大於 rb 時, 漸開線並非畫至 rb, 而是 rd
+    -- 畫出 rd 圓 (齒根圓), 畫圓函式尚未定義
+    -- create_oval(midx-rd, midy-rd, midx+rd, midy+rd, width=1)
+    -- dr 則為基圓到齒頂圓半徑分成 imax 段後的每段半徑增量大小
+    -- 將圓弧分成 imax 段來繪製漸開線
+    -- 當 rd 大於 rb 時, 漸開線並非畫至 rb, 而是 rd
+    if rd>rb then
+        dr = (ra-rd)/imax
+    else
+        dr=(ra-rb)/imax
+    -- if end
+    end
+    -- tan(pa*deg)-pa*deg 為漸開線函數
+    sigma=math.pi/(2*self.n)+math.tan(self.pa*deg)-self.pa*deg
+    for j=0,self.n-1 do
+        ang=-2.*j*math.pi/self.n+sigma
+        ang2=2.*j*math.pi/self.n+sigma
+        lxd=self.midx+rd*math.sin(ang2-2.*math.pi/self.n)
+        lyd=self.midy-rd*math.cos(ang2-2.*math.pi/self.n)
+        for i=0, imax do
+            -- 當 rd 大於 rb 時, 漸開線並非畫至 rb, 而是 rd
+            if rd>rb then
+                r=rd+i*dr
+            else
+                r=rb+i*dr
+            end
+            theta=math.sqrt((r*r)/(rb*rb)-1.)
+            alpha=theta-math.atan(theta)
+            xpt=r*math.sin(alpha-ang)
+            ypt=r*math.cos(alpha-ang)
+            xd=rd*math.sin(-ang)
+            yd=rd*math.cos(-ang)
+            -- i=0 時, 繪線起點由齒根圓上的點, 作為起點
+            if(i==0) then
+                last_x = self.midx+xd
+                last_y = self.midy-yd
+            end
+            -- 由左側齒根圓作為起點, 除第一點 (xd,yd) 齒根圓上的起點外, 其餘的 (xpt,ypt)則為漸開線上的分段點
+            -- 宣告畫線顏色為 self.color, 即建立物件時所宣告的初始畫線顏色
+            line(self.ctx, (self.midx+xpt),(self.midy-ypt),(last_x),(last_y), 2, self.color)
+            -- 最後一點, 則為齒頂圓
+            if(i==imax) then
+                lfx=self.midx+xpt
+                lfy=self.midy-ypt
+            end
+            last_x = self.midx+xpt
+            last_y = self.midy-ypt
+        -- for end
+        end
+        -- the line from last end of dedendum point to the recent
+        -- end of dedendum point
+        -- lxd 為齒根圓上的左側 x 座標, lyd 則為 y 座標
+        -- 下列為齒根圓上用來近似圓弧的直線
+        -- 宣告畫線顏色為 self.color, 即建立物件時所宣告的初始畫線顏色
+        line(self.ctx, (lxd),(lyd),(self.midx+xd),(self.midy-yd), 2, self.color)
+        for i=0, imax do
+            -- 當 rd 大於 rb 時, 漸開線並非畫至 rb, 而是 rd
+            if rd>rb then
+                r=rd+i*dr
+            else
+                r=rb+i*dr
+            end
+            theta=math.sqrt((r*r)/(rb*rb)-1.)
+            alpha=theta-math.atan(theta)
+            xpt=r*math.sin(ang2-alpha)
+            ypt=r*math.cos(ang2-alpha)
+            xd=rd*math.sin(ang2)
+            yd=rd*math.cos(ang2)
+            -- i=0 時, 繪線起點由齒根圓上的點, 作為起點
+            if(i==0) then
+                last_x = self.midx+xd
+                last_y = self.midy-yd
+            -- if end
+            end
+            -- 由右側齒根圓作為起點, 除第一點 (xd,yd) 齒根圓上的起點外, 其餘的 (xpt,ypt)則為漸開線上的分段點
+            -- 宣告畫線顏色為 self.color, 即建立物件時所宣告的初始畫線顏色
+            line(self.ctx, (self.midx+xpt),(self.midy-ypt),(last_x),(last_y), 2, self.color)
+            -- 最後一點, 則為齒頂圓
+            if(i==imax) then
+                rfx=self.midx+xpt
+                rfy=self.midy-ypt
+            -- if end
+            end
+            last_x = self.midx+xpt
+            last_y = self.midy-ypt
+        -- for end
+        end
+        -- lfx 為齒頂圓上的左側 x 座標, lfy 則為 y 座標
+        -- 下列為齒頂圓上用來近似圓弧的直線
+        -- 宣告畫線顏色為 self.color, 即建立物件時所宣告的初始畫線顏色
+        line(self.ctx, lfx,lfy,rfx,rfy, 2, self.color)
+    -- for end
+    end
+--function end
+end
+
+-- 宣告以藍色畫線
+gear1 = gear.new(ctx, 300, 300, 150, 25, 20, "rgb(0,0,200)")
+gear1:plot()
+</script>
+Cango 繪圖
+<script type="text/javascript" src="/static/Cango-13v08-min.js"></script>
+<script type="text/javascript" src="/static/CangoAxes-4v01-min.js"></script>
+<script type="text/javascript" src="/static/gearUtils-05.js"></script>
+<canvas id="cango_gear" width="800" height="750"></canvas>
+<script type="application/lua">
+-- 導入 "js" 模組
+local js = require "js"
+-- global 就是 javascript 的 window
+local window = js.global
+local Array = js.global.Array
+canvas = window.document:getElementById("cango_gear")
+
+-- 將 lua table 轉為 new JavaScript Object 的方法
+-- e.g. Object{mykey="myvalue"}
+local function Object(t)
+    local o = js.new(js.global.Object)
+    for k, v in pairs(t) do
+        assert(type(k) == "string" or js.typeof(k) == "symbol", "JavaScript only has string and symbol keys")
+        o[k] = v
+    end
+    return o
+end
+
+-- javascript constructor
+cgo = js.new(window.Cango, "cango_gear")
+--local path = js.new(window.Path)
+local shape = js.new(window.Shape)
+-- Javascript 變數
+shapedefs = window.shapeDefs
+-- 角度轉為徑度
+deg = math.pi/180
+
+function cangoGear(m, n, pa)
+    m = m or 3 -- 模數
+    n = n or 20 -- 齒數
+    pa = pa or 20 -- 壓力角
+    -- 列出利用 Cango 程式庫所建立的齒型數列
+    -- local creategeartooth = js.new(window.createGearTooth, m, n, pa)
+    -- pr 為節圓半徑
+    pr = n*m/2 -- gear Pitch radius
+    -- m 為模數, n 為齒數, pa 為壓力角, 必須在建立新物件時輸入對應的輸入變數值
+    -- local creategeartooth = js.new(window.createGearTooth, 3, 20, 20)
+    data = js.new(window.createGearTooth, m, n, pa)
+    --print(creategeartooth)
+    --local path = js.new(window.Path)
+    gearTooth = js.new(window.Path, data, Object{
+      fillColor= "#ddd0dd",
+      border= true,
+      strokeColor= "#606060" })
+    gearTooth:rotate(180/n) -- rotate gear 1/2 tooth to mesh
+    -- 單齒的齒形資料經過旋轉後, 將資料複製到 gear 物件中
+    gear = gearTooth:dup()
+    -- gear 為單一齒的輪廓資料
+    --cgo:render(gear)
+    -- 利用單齒輪廓旋轉, 產生整個正齒輪外形
+    for i = 1, n-1 do
+        -- 將 gearTooth 中的資料複製到 newTooth
+        newTooth = gearTooth:dup()
+        -- 配合迴圈, newTooth 的齒形資料進行旋轉, 然後利用 appendPath 方法, 將資料併入 gear
+        newTooth:rotate(360*i/n)
+        gear:appendPath(newTooth)
+    end
+
+    -- 建立軸孔
+    -- add axle hole, hr 為 hole radius
+    hr = 0.6*pr -- diameter of gear shaft
+    shaft = js.new(window.Path, shapedefs:circle(hr))
+    gear:appendPath(shaft) -- retain the 'moveTo' command for shaft sub path
+
+    -- setup the animation
+    -- backlash (mm)
+    bklsh = 0.04*m
+    -- centre shift to make backlash
+    dC = bklsh/(2*math.tan(math.pi*pa/180))
+    -- np 為小齒輪齒數
+    np = 13
+    -- gear ratio
+    gr = n/np
+    -- 必須將 lua 的 table 轉為 javascript array 資料, 因為 lua 沒有數列資料型別
+    t_js_array = js.global:Array()
+    t_js_array:splice(0, 0, table.unpack({0, 360}))       
+    gearConfig = Object{cx=-pr, cy=0, degs=t_js_array}
+    -- gr*0.666 rpm
+    --pinionConfig = {'cx':pr+dC, 'cy':0, 'degs':[0, -gr*360]}
+    -- 0.666 rpm
+    -- 目前並非以 tweener 執行動畫
+    --twnr = tweener(0, 90000, "loop")
+    return gear
+end
+
+-- 設定兩齒齒數
+n = 17
+n2 = 11
+n3 = 17
+reduced_ratio = 0.5
+-- 使用 80% 的畫布寬度
+m = 0.8*(canvas.width)/((n+n2+n3)*reduced_ratio)
+-- 設定共同的壓力角
+pa = 25
+-- n 齒輪的節圓半徑
+pr = n*m/2
+-- n2 齒輪的節圓半徑
+pr2 = n2*m/2
+pr3 = n3*m/2
+-- 建立 gear
+gear = cangoGear(m, n, pa)
+cx = (canvas.width)/2
+cy = (canvas.height)/2
+-- render 繪出靜態正齒輪輪廓
+--cgo.render(gear)
+-- 利用 gear 資料複製一份, 命名為 gear1
+--gear1 = gear.dup()
+-- 建立 gear1
+gear1 = cangoGear(m, n2, pa)
+gear2 = cangoGear(m, n3, pa)
+-- 需要直接利用 javascript 的 set_Interval
+
+deg = math.pi/180
+rotate_speed = 6*deg
+
+function draw()
+    cgo:clearCanvas()
+    -- 在特定位置, 以特定 scale, 特定 degs 執行 render
+    -- 設定囓合點在畫布正中央
+    -- 囓合點往左偏 pr/2 即為 n 齒輪的圓心 x 座標
+    --cgo.render(gear, {'x':cx-pr*reduced_ratio, 'y':cy, 'scl':reduced_ratio, 'degs':0})
+    gear.transform:translate(cx-(pr+pr2)*reduced_ratio, cy)
+    gear.transform:scale(reduced_ratio)
+    gear.transform:rotate(0)
+    gear:rotate(rotate_speed)
+    cgo:render(gear)
+    
+    --cgo.render(gear, {'x':cx-(pr+pr2)*reduced_ratio, 'y':cy, 'scl':0.5, 'degs':0})
+    -- 根據兩齒輪齒數比決定 n2 齒輪轉速
+    
+    gear1.transform:translate(cx, cy)
+    gear1.transform:scale(reduced_ratio)
+    gear1.transform:rotate(180+(360/n2/2))
+    gear1:rotate(-(rotate_speed)*n/n2)
+    cgo:render(gear1)
+    
+    gear2.transform:translate(cx+(pr2+pr3)*reduced_ratio, cy)
+    gear2.transform:scale(reduced_ratio)
+    gear2.transform:rotate(180+(360/n3/2)+(180+(360/n2/2))*n2/n3)
+    gear2:rotate((rotate_speed*n/n2)*(n2/n3))
+    cgo:render(gear2)
+    
+    -- 囓合點往右偏 pr2/2 即為 n2 齒輪的圓心 x 座標, 且 n2 齒轉 180 加一齒角度後囓合
+    --cgo.render(gear1, {'x':cx, 'y':cy, 'scl':reduced_ratio, 'degs':180+(360/n2/2)})
+    --cgo.render(gear2, {'x':cx+(pr2+pr3)*reduced_ratio, 'y':cy, 'scl':reduced_ratio, 'degs':180+(360/n3/2)+(180+(360/n2/2))*n2/n3})
+end
+-- 目前只能正確繪製靜態嚙合, 動態旋轉仍有問題
+draw()
+--window:setInterval(draw, 2)
+</script>
+</p><h1>Brython</h1>
 <p>正齒輪繪圖</p>
 <p>
 <script>
