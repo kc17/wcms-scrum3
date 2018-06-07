@@ -694,7 +694,7 @@ star(50, 450, 200, 7)
 ctx:closePath()
 ctx:stroke()
     </pre>
-<h2>網際繪圖1</h2>
+<h2>Lua 簡介</h2><p><a href="http://nova-fusion.com/2012/08/27/lua-for-programmers-part-1/">http://nova-fusion.com/2012/08/27/lua-for-programmers-part-1/</a>&nbsp;</p><p><span>Lua is a powerful, efficient, lightweight, embeddable scripting language. It supports procedural programming, object-oriented programming, functional programming, data-driven programming, and data description.</span><span></span></p><p><span>procedural programming</span><span></span></p><p><span>object-oriented programming</span><span></span></p><p><span> functional programming</span></p><p><span>data-driven programming</span><span></span></p><p><span>data description</span><span></span></p><p><span>A fundamental concept in the design of Lua is to provide&nbsp;<em>meta-mechanisms&nbsp;</em>for implementing features, instead of providing a host of features directly in the language. For example, although Lua is not a pure object-oriented language, it does provide meta-mechanisms for implementing classes and inheritance. Lua's meta-mechanisms bring an economy of concepts and keep the language small, while allowing the semantics to be extended in unconventional ways.</span></p><p><span>metatable</span></p><p><a href="http://nova-fusion.com/2011/06/30/lua-metatables-tutorial/">http://nova-fusion.com/2011/06/30/lua-metatables-tutorial/</a>&nbsp;</p><h2>網際繪圖1</h2>
 <p><a href="https://brython.info/">Brython</a> 與 <a href="https://github.com/fengari-lua/fengari-web">Fengari-web</a> 都可以透過 scripting 的方式在網際繪圖, 前者使用 Python3 語法, 而後者使用 Lua 程式語法, Brython 目前的 brython-dist.js 高達 3.7 MB, 而 fengari-web.js 只需要 233 KB.</p>
 <p><a href="http://lab.kmol.info/blog/brython-programming-environment.html">http://lab.kmol.info/blog/brython-programming-environment.html</a>&nbsp;說明如何使用 Brython 進行與機械設計領域相關的網際繪圖, 在此, 則希望利用 Lua 進行相同效果的網際程式設計.</p>
 <p>由於本網際內容管理程式使用 Tinymce4 網際編輯器套件, 因此為了讓 CMSimfly 編輯器中可以輸入 script 與 canvas 等網際繪圖相關的 html 標註, 必須要修改相關設定:</p>
@@ -1309,7 +1309,111 @@ end
 gear1 = gear.new(ctx, 300, 300, 150, 25, 20, "rgb(0,0,200)")
 gear1:plot()
 </script>
-</p><h2>Lua-Cango</h2><p>Cango 繪圖</p><p><script type="text/javascript" src="/static/Cango-13v08-min.js"></script><script type="text/javascript" src="/static/CangoAxes-4v01-min.js"></script><script type="text/javascript" src="/static/gearUtils-05.js"></script></p><p><canvas id="cango_gear" width="800" height="750"></canvas></p><p><script type="application/lua">js = require "js"window = js.globalArray = js.global.Arraycanvas = window.document:getElementById("cango_gear")-- 將 lua table 轉為 new JavaScript Object 的方法-- e.g. Object{mykey="myvalue"}function Object(t)    local o = js.new(js.global.Object)    for k, v in pairs(t) do        assert(type(k) == "string" or js.typeof(k) == "symbol", "JavaScript only has string and symbol keys")        o[k] = v    end    return oend-- javascript constructorcgo = js.new(window.Cango, "cango_gear")--local path = js.new(window.Path)local shape = js.new(window.Shape)-- Javascript 變數shapedefs = window.shapeDefs-- 角度轉為徑度deg = math.pi/180function cangoGear(m, n, pa)    -- pr 為節圓半徑    pr = n*m/2 -- gear Pitch radius    data = js.new(window.createGearTooth, m, n, pa)    gearTooth = js.new(window.Path, data, Object{      fillColor= "#ddd0dd",      border= true,      strokeColor= "#606060" })    gearTooth:rotate(180/n) -- rotate gear 1/2 tooth to mesh    gear = gearTooth:dup()    for i = 1, n-1 do        newTooth = gearTooth:dup()        newTooth:rotate(360*i/n)        gear:appendPath(newTooth)    end    -- 建立軸孔    hr = 0.6*pr -- diameter of gear shaft    shaft = js.new(window.Path, shapedefs:circle(hr))    gear:appendPath(shaft)    return gearendn1 = 13n2 = 24n3 = 21reduced_ratio = 0.5-- 使用 80% 的畫布寬度m = 0.8*(canvas.width)/((n1+n2+n3)*reduced_ratio)cx = (canvas.width)/2cy = (canvas.height)/2-- 設定共同的壓力角pa = 25pr1 = n1*m/2pr2 = n2*m/2pr3 = n3*m/2-- 建立 geargear1 = cangoGear(m, n1, pa)gear2 = cangoGear(m, n2, pa)gear3 = cangoGear(m, n3, pa)deg = math.pi/180rotate_speed = 12*degfunction draw()    cgo:clearCanvas()    gear1.transform:translate(cx-(pr1+pr2)*reduced_ratio, cy)    gear1.transform:scale(reduced_ratio)    gear1.transform:rotate(0)    gear1:rotate(rotate_speed)    cgo:render(gear1)        gear2.transform:translate(cx, cy)    gear2.transform:scale(reduced_ratio)    gear2.transform:rotate(180+(360/n2/2))    gear2:rotate(-(rotate_speed)*n1/n2)    cgo:render(gear2)        gear3.transform:translate(cx+(pr2+pr3)*reduced_ratio, cy)    gear3.transform:scale(reduced_ratio)    gear3.transform:rotate(180+(360/n3/2)+(180+(360/n2/2))*n2/n3)    gear3:rotate((rotate_speed*n1/n2)*(n2/n3))    cgo:render(gear3)end--draw()window:setInterval(draw, 2)</script></p><h1>Brython</h1>
+</p><h2>Lua-Cango</h2>
+<p>Cango 繪圖</p>
+<p>
+<script type="text/javascript" src="/static/Cango-13v08-min.js"></script>
+<script type="text/javascript" src="/static/CangoAxes-4v01-min.js"></script>
+<script type="text/javascript" src="/static/gearUtils-05.js"></script>
+</p>
+<p><canvas id="cango_gear" width="800" height="750"></canvas></p>
+<p>
+<script type="application/lua">
+js = require "js"
+window = js.global
+Array = js.global.Array
+canvas = window.document:getElementById("cango_gear")
+
+-- 將 lua table 轉為 new JavaScript Object 的方法
+-- e.g. Object{mykey="myvalue"}
+function Object(t)
+    local o = js.new(js.global.Object)
+    for k, v in pairs(t) do
+        assert(type(k) == "string" or js.typeof(k) == "symbol", "JavaScript only has string and symbol keys")
+        o[k] = v
+    end
+    return o
+end
+
+-- javascript constructor
+cgo = js.new(window.Cango, "cango_gear")
+--local path = js.new(window.Path)
+local shape = js.new(window.Shape)
+-- Javascript 變數
+shapedefs = window.shapeDefs
+-- 角度轉為徑度
+deg = math.pi/180
+
+function cangoGear(m, n, pa)
+    -- pr 為節圓半徑
+    pr = n*m/2 -- gear Pitch radius
+    data = js.new(window.createGearTooth, m, n, pa)
+    gearTooth = js.new(window.Path, data, Object{
+      fillColor= "#ddd0dd",
+      border= true,
+      strokeColor= "#606060" })
+    gearTooth:rotate(180/n) -- rotate gear 1/2 tooth to mesh
+    gear = gearTooth:dup()
+    for i = 1, n-1 do
+        newTooth = gearTooth:dup()
+        newTooth:rotate(360*i/n)
+        gear:appendPath(newTooth)
+    end
+
+    -- 建立軸孔
+    hr = 0.6*pr -- diameter of gear shaft
+    shaft = js.new(window.Path, shapedefs:circle(hr))
+    gear:appendPath(shaft)
+    return gear
+end
+
+n1 = 13
+n2 = 24
+n3 = 21
+reduced_ratio = 0.5
+-- 使用 80% 的畫布寬度
+m = 0.8*(canvas.width)/((n1+n2+n3)*reduced_ratio)
+cx = (canvas.width)/2
+cy = (canvas.height)/2
+-- 設定共同的壓力角
+pa = 25
+pr1 = n1*m/2
+pr2 = n2*m/2
+pr3 = n3*m/2
+-- 建立 gear
+gear1 = cangoGear(m, n1, pa)
+gear2 = cangoGear(m, n2, pa)
+gear3 = cangoGear(m, n3, pa)
+
+deg = math.pi/180
+rotate_speed = 12*deg
+
+function draw()
+    cgo:clearCanvas()
+
+    gear1.transform:translate(cx-(pr1+pr2)*reduced_ratio, cy)
+    gear1.transform:scale(reduced_ratio)
+    gear1.transform:rotate(0)
+    gear1:rotate(rotate_speed)
+    cgo:render(gear1)
+    
+    gear2.transform:translate(cx, cy)
+    gear2.transform:scale(reduced_ratio)
+    gear2.transform:rotate(180+(360/n2/2))
+    gear2:rotate(-(rotate_speed)*n1/n2)
+    cgo:render(gear2)
+    
+    gear3.transform:translate(cx+(pr2+pr3)*reduced_ratio, cy)
+    gear3.transform:scale(reduced_ratio)
+    gear3.transform:rotate(180+(360/n3/2)+(180+(360/n2/2))*n2/n3)
+    gear3:rotate((rotate_speed*n1/n2)*(n2/n3))
+    cgo:render(gear3)
+end
+
+--draw()
+window:setInterval(draw, 2)
+</script>
+</p><h1>Brython</h1>
 <p>正齒輪繪圖</p>
 <p>
 <script>
