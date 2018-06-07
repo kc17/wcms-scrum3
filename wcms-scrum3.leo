@@ -85,7 +85,7 @@
 <v t="leo.20180331151732.1"><vh>@edit flaskapp.py</vh></v>
 <v t="leo.20180408160628.1"><vh>@edit lua.html</vh></v>
 <v t="leo.20180601085134.1"><vh>@edit lua2.html</vh></v>
-<v t="leo.20180601085242.1" a="E"><vh>@path static</vh>
+<v t="leo.20180601085242.1"><vh>@path static</vh>
 <v t="leo.20180601085250.1"><vh>@edit editor.lua</vh></v>
 <v t="leo.20180601085324.1"><vh>@edit ext1.lua</vh></v>
 <v t="leo.20180601085421.1"><vh>@edit ext2.lua</vh></v>
@@ -1942,7 +1942,9 @@ def lua2():
         lines = fh.readlines()
         for i in range(len(lines)):
             output+=lines[i]
-    return output</t>
+    return output
+
+</t>
 <t tx="leo.20180601085242.1"></t>
 <t tx="leo.20180601090250.1"></t>
 </tnodes>

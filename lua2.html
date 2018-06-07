@@ -14,6 +14,7 @@
 <!-- 導入 Cango library -->
 <script type="text/javascript" src="/static/Cango-13v08-min.js"></script>
 <script type="text/javascript" src="/static/CangoAxes-4v01-min.js"></script>
+<script type="text/javascript" src="/static/gearUtils-05.js"></script>
 <script type="text/javascript">
 function doSave(storage_id, filename){
     var blob = new Blob([localStorage[storage_id]], {type: "text/plain;charset=utf-8"});
@@ -66,6 +67,7 @@ function parse_query_string(query) {
                 &nbsp;<a href="?filename=star1">star</a>&nbsp;|
                 &nbsp;<a href="?filename=flag">flag</a>&nbsp;|
                 &nbsp;<a href="?filename=cango1">cango1</a>&nbsp;|
+                &nbsp;<a href="?filename=gear1">gear1</a>&nbsp;|
                 &nbsp;<a href="?filename=oop1">oop1</a>&nbsp;|
                 &nbsp;<a href="?filename=ga_onemax">ga</a>&nbsp;|
                 &nbsp;<a href="/">回 CMsimfly</a>
@@ -120,6 +122,6 @@ end
 <script src="/static/ace/mode-lua.js"></script>
 <script src="/static/editor.js"></script>
 <br /><br />
-<canvas id="canvas" width="600" height="600"></canvas>
+<canvas id="canvas" width="800" height="600"></canvas>
     </body>
 </html>
