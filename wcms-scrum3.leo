@@ -13,7 +13,8 @@
 <v t="leo.20180328195852.2"><vh>@data qt-gui-plugin-style-sheet</vh></v>
 <v t="leo.20180328195852.3"><vh>@string initial_split_orientation = horizontal</vh></v>
 </v>
-<v t="leo.20180408153151.1"><vh>@clean app_run.py</vh>
+<v t="leo.20180620201008.1"><vh>debug</vh></v>
+<v t="leo.20180408153151.1" a="E"><vh>@clean app_run.py</vh>
 <v t="leo.20180408153205.1"><vh>Declarations</vh></v>
 <v t="leo.20180408153205.2"><vh>index</vh></v>
 <v t="leo.20180408153205.3"><vh>download</vh></v>
@@ -907,8 +908,8 @@ init_mathjax = function() {
         // MathJax loaded
         MathJax.Hub.Config({
             tex2jax: {
-                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-                displayMath: [ ['$$','$$'], ["\\[","\\]"] ]
+                inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],
+                displayMath: [ ['$$','$$'], ["\\\\[","\\\\]"] ]
             },
             displayAlign: 'left', // Change this to 'center' to center equations.
             "HTML-CSS": {
@@ -1947,5 +1948,32 @@ def lua2():
 </t>
 <t tx="leo.20180601085242.1"></t>
 <t tx="leo.20180601090250.1"></t>
+<t tx="leo.20180620201008.1">當引入 Mathjax 時, 必須使用
+
+&lt;!-- for LaTeX equations --&gt;
+&lt;script src="/static/math/MathJax.js?config=TeX-MML-AM_CHTML" type="text/javascript"&gt;&lt;/script&gt;
+&lt;script type="text/javascript"&gt;
+init_mathjax = function() {
+    if (window.MathJax) {
+        // MathJax loaded
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],
+                displayMath: [ ['$$','$$'], ["\\\\[","\\\\]"] ]
+            },
+            displayAlign: 'left', // Change this to 'center' to center equations.
+            "HTML-CSS": {
+                styles: {'.MathJax_Display': {"margin": 0}}
+            }
+        });
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    }
+}
+init_mathjax();
+&lt;/script&gt;
+
+因為兩個 \\ 目前在 CMSimfly 中會被視為 \, 而影響隨後以 () 或 [] 圈起內容的錯誤 mathjax parsing 處理, 改為四個 \ 後, 呈現在網頁中就會成為兩個 \, 而可得到正確的結果.
+
+也就是可以透過 \(\) 與 \[\] 要求 mathjax 執行 parsing 任務.</t>
 </tnodes>
 </leo_file>
